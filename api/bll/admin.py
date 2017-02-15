@@ -14,7 +14,7 @@ from django.db import transaction
 from wechat_auth.helpers import changeSingleBaseToImg,getParentOrderObj,changeTime,getTeacherObj
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAdminUser
-from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime
+from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime,defaultChangeTeachShowPhoto
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return  # To not perform the csrf check previously happening
@@ -51,7 +51,7 @@ def deleteUser(request):
     userType = request.data.get('user',None)
     id = request.data.get('id',None)
     if userType == "parent":
-        obj = ParentOrder.objects.filter(pa_id=id)
+        obj = ParentOrder.objects.filter(pd_id=id)
     elif userType == "teacher":
         obj = Teacher.objects.filter(tea_id=id)
     else:
@@ -101,7 +101,9 @@ def getInfo(request):
         if format:
             getTeacherObj(result)
         else:
+            defaultChangeTeachShowPhoto(result)
             changeTime(result)
+
     else:
         return JsonError(u"输入数据的user值不对")
     return JsonResponse(result)
@@ -125,9 +127,9 @@ def updateInfo(request):
     userType = request.data.get('user',None)
     temp = request.data.dict()  if (type(request.data.get('userInfo', {})) != type({})) else request.data.get('userInfo', {})
     now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    temp['update_time']= now
     changeObejct(temp)
     if userType == "parent":
-        temp['update_time']= now
         resNum = ParentOrder.objects.filter(pd_id = id).update(**temp)
     elif userType == "teacher":
         resNum = Teacher.objects.filter(tea_id = id).update(**temp)
@@ -296,43 +298,42 @@ def setPass(request):
 def getCheckList(request):
     """
     获取审核页面的信息
-    :param request:
+    :param request:{"selected":1,"start":0,"size":6}
     :return:
     """
-    selected = request.data.get('selected',None)    #当为1时：简历投递, 2：家长需求  3：简历修改
+
+    selected = request.data.get('selected',None)    #当为1时：简历投递, 2：家长需求
     format = request.data.get('format',None)
     size = int(request.data.get("size",0))
     start = int(request.data.get("start",0)) * size
+    res = []
     if selected == 1:
-        pds = ParentOrder.objects.filter(pass_not = 1)[start:start+size]
-        serializer = ParentOrderSerializer(pds,many=True)
-        result = serializer.data
-        if format:
-            getParentOrderObj(result,many=True)
-        else:
-            for res in result:
-                changeTime(res)
-    elif selected == 2:
         teas = Teacher.objects.filter(pass_not = 1)[start:start+size]
         serializer = TeacherSerializer(teas,many=True)
         result = serializer.data
-        if format:
-            getTeacherObj(result,many=True)
-        else:
-            for res in result:
-                changeTime(res)
-    elif selected == 3:
-        pds = ParentOrder.objects.filter(pass_not = 2)[start:start+size]
+        for r in result:
+            temp = {
+                "name": r['name'],
+                "create_time":r['create_time'],
+                "tea_id": r["tea_id"]
+            }
+            res.append(temp)
+    elif selected == 2:
+        pds = ParentOrder.objects.filter(pass_not = 1)[start:start+size]
         serializer = ParentOrderSerializer(pds,many=True)
         result = serializer.data
-        if format:
-            getParentOrderObj(result)
-        else:
-            for res in result:
-                changeTime(res)
-    else:
-        return JsonError(u"传入的数据有误")
-    return JsonResponse(result)
+
+        for r in result:
+            temp = {
+                "name": r['name'],
+                "create_time":r['create_time'],
+                "pd_id": r["pd_id"]
+            }
+            res.append(temp)
+
+
+    return JsonResponse(res)
+
 @login_required()
 @api_view(['POST'])
 @authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
@@ -343,14 +344,51 @@ def changeText(request):
     :return:
     """
     data = request.data
+    result = {}
+    #将照片的base64转换成路径，然后保存在数据库上
+    if data.has_key('image') and data.has_key('url'):
+        image = Config.objects.filter(key='image')[0].value
+        url = Config.objects.filter(key='url')[0].value
+        imgs = image.split(',') if image != "" else []
+        urls = url.split(',') if url != "" else []
+        if len(imgs) > 4:
+            return JsonError(u"只接受5个广告位")
+        banner = changeSingleBaseToImg(data['image'])
+        imgs.append(banner)
+        result['image'] = banner
+        urls.append(data['url'])
+        data['image'] = ",".join(imgs)
+        data['url'] = ",".join(urls)
     try:
         with transaction.atomic():
             for k in data.keys():
                 Config.objects.filter(key=k).update(value=data[k])
     except Exception,e:
         return JsonError(e.message)
-    return JsonResponse()
+    return JsonResponse(result)
 
+@login_required()
+@api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+@permission_classes((IsAdminUser,))
+def deleteBanner(request):
+    try:
+        image = request.data.get('image',None)
+        img = Config.objects.filter(key='image')[0]
+        imgs = img.value.split(',')
+        url = Config.objects.filter(key='url')[0]
+        urls = url.value.split(',')
+        idx = imgs.index(image)
+        del imgs[idx]
+        del urls[idx]
+        url.value = ",".join(urls)
+        img.value = ",".join(imgs)
+        url.save()
+        img.save()
+        return JsonResponse()
+    except Exception,e:
+        print e
+        return JsonError(e.message)
 @login_required()
 @api_view(['POST'])
 @authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
@@ -392,10 +430,12 @@ def sendPhone(request):
     if len(teas) and len(oas):
         tea = teas[0]
         oa = oas[0]
-        message_title = u"向您发送了XX家长的联系方式！"
-        message_content = u"XX家长的联系方式的" + str(tel)
+        pd_name  = oa.pd.name
+        message_title = u"向您发送了" + pd_name +u"家长的联系方式！"
+        message_content = pd_name + u"家长的联系方式是" + str(tel)
         message = Message(sender=user, receiver=tea.wechat, message_title=message_title, message_content=message_content,status=0)
         message.save()
+        oa.tel = str(tel)
         oa.finished = 1
         oa.save()
         return JsonResponse()
@@ -415,8 +455,8 @@ def remindFeedBack(request):
     id = request.data.get('id',None)
     userType = request.data.get('user',None)
     user = AuthUser.objects.get(username=request.user.username)
-    message_title = u"XX家教邀请您填写反馈意见！"
-    message_content = u"XX家教邀请您填写反馈意见！"
+    message_title = u"好学吧家教邀请您填写反馈意见！"
+    message_content = u"好学吧家教邀请您填写反馈意见！"
     if userType == "parent":
         objs = ParentOrder.objects.filter(pd_id = id)
     elif userType == "teacher":
@@ -453,7 +493,7 @@ def submitFeedBack(request):
         fb = Feedback(**data)
         fb.save()
     except Exception,e:
-        return JsonError(e.message)
+        return JsonError(str(e))
     return JsonResponse()
 
 @login_required()
@@ -490,3 +530,17 @@ def getFeedBack(request):
                 setattr(fb,v,False)
     serializer = FeedbackSerializer(fbs,many=True)
     return JsonResponse(serializer.data)
+
+@login_required()
+@api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+@permission_classes((IsAdminUser,))
+def deleteOrder(request):
+    oa_id = int(request.data.get('oa_id',0))
+    oas = OrderApply.objects.filter(oa_id=oa_id)
+    if len(oas):
+        oa = oas[0]
+        oa.delete()
+        return JsonResponse()
+    else:
+        return JsonError(u"not found")

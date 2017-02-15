@@ -70,6 +70,8 @@ def createParentOrder(request):
     """
     user = AuthUser.objects.get(username=request.user.username)
     parentorder = user.parentorder_set.all()
+    #TODO：管理员创建多个会有什么连锁反应
+    #TODO:这个以后会加个限制，不让同时创建老师和家长
     if not user.is_superuser and len(parentorder) > 0:
         return JsonError("already existed")
     if request.method == 'POST':
@@ -99,7 +101,7 @@ def updateParentOrder(request):
         temp = request.data.dict()  if (type(request.data) != type({})) else request.data
         changeObejct(temp)
         temp['update_time']= now
-        print temp
+        temp['pass_not'] =1
         po = user.parentorder_set.update(**temp)
         return JsonResponse()
         # serializer = ParentOrderSerializer(user.parentorder_set.all()[0])
@@ -137,13 +139,17 @@ def getParentOrder(request):
     """
     size = int(request.data.get("size",0))
     start = int(request.data.get("start",0)) * size
+    keyword = request.data.get("keyword", '')
+    filter = {}
+    if keyword and keyword != '':
+        filter["name__contains"] = keyword
     user = AuthUser.objects.get(username=request.user.username)
     teas = user.teacher_set.all()
     if len(teas) > 0:
         tea = teas[0]
     else:
-        return JsonError("家长不存在！请重新填问卷")
-    parentOrders = ParentOrder.objects.all()[start:start + size]
+        return JsonError(u"您不是老师！请重新填问卷")
+    parentOrders = ParentOrder.objects.filter(**filter)[start:start + size]
     for po in parentOrders:
         po.isInvited = ''
         #老师主动报名

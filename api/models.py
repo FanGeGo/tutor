@@ -174,6 +174,7 @@ class OrderApply(models.Model):
     pass_not = models.IntegerField()
     expectation = models.TextField(blank=True, null=True)
     finished = models.IntegerField(default=0)
+    tel =  models.CharField(max_length=45, null=True)
 
     class Meta:
         managed = False
@@ -258,6 +259,7 @@ class Teacher(models.Model):
     teach_show_photo = models.TextField(blank=True, null=True)
     massage_warn = models.IntegerField(blank=True, null=True, default=1)
     create_time = models.DateTimeField(blank=True, null=True)
+    update_time = models.DateTimeField(blank=True, null=True)
     pass_not = models.IntegerField(blank=True, null=True, default=1)
     mon_begin = models.IntegerField(blank=True, null=True)
     mon_end = models.IntegerField(blank=True, null=True)
@@ -287,7 +289,7 @@ class Feedback(models.Model):
     wechat = models.ForeignKey(AuthUser, db_column='wechat', blank=True, null=True)
     tutorservice = models.TextField(db_column='tutorService', blank=True, null=True)  # Field name made lowercase.
     appservice = models.TextField(db_column='appService', blank=True, null=True)  # Field name made lowercase.
-    rate = models.FloatField(blank=True, null=True)
+    rate = models.FloatField(blank=True)
     create_time = models.DateTimeField(blank=True, null=True)
 
     class Meta:

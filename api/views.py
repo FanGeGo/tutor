@@ -47,9 +47,20 @@ def getWechatInfo(request):
 @authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
 def getText(request):
     key = request.data.get('key',None)
+    result = {}
     try:
-        salary = Config.objects.get(key=key)
-        result = {'value': salary.value}
+        for k in key:
+            if k == "getImg":
+                value = []
+                image = Config.objects.filter(key='image')[0].value
+                url = Config.objects.filter(key='url')[0].value
+                imgs = image.split(',') if image != "" else []
+                urls = url.split(',') if image != "" else []
+                for i,v in enumerate(imgs):
+                    value.append({"img":v,"url":urls[i]})
+            else:
+                value = Config.objects.get(key=k).value
+            result[k] = value
         return JsonResponse(result)
     except Exception,e:
         return JsonError(e.message)

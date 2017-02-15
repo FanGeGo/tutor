@@ -115,20 +115,26 @@ def changeBaseToImg(data):
     for imgData in data:
         pic_data = imgData["img"]
         name = changeSingleBaseToImg(pic_data)
-        result.append('/static/'+name)
+        result.append(name)
     return ','.join(result)
 
 def changeSingleBaseToImg(pic_data):
     p = r"image/(.*?);base64,(.*)"
     r = re.search(p,pic_data)
-    type = r.group(1)
-    base64Data = r.group(2)
-    name = str(int(time.time() * 1000000)) + '.' + type
-    path = dir+name
-    with open(path, "wb") as fh:
-        fh.write(base64.decodestring(base64Data))
-    return name
-
+    if r:
+        type = r.group(1)
+        base64Data = r.group(2)
+        name = str(int(time.time() * 1000000)) + '.' + type
+        path = dir+name
+        with open(path, "wb") as fh:
+            fh.write(base64.decodestring(base64Data))
+        return '/static/' + name
+    else:
+        try:
+            idx = pic_data.index("static")
+            return pic_data[idx-1:]
+        except :
+            return ''
 def changeObejct(obj):
     """
     兼容接受到的对象
@@ -147,7 +153,12 @@ def changeObejct(obj):
     #禁止自己审核
     if obj.has_key('pass_not'):
         del obj['pass_not']
+    if obj.has_key('tea_id'):
+        del obj['tea_id']
+    if obj.has_key('pd_id'):
+        del obj['pd_id']
     return obj
+
 
 def getParentOrderObj(objs,many=False):
 
@@ -198,7 +209,28 @@ def changeTeacherObj(obj):
     changeWeekToRange(obj, week)
     changeWeekEndToRange(obj, weekend)
     changeTime(obj)
+    changeTeachShowPhoto(obj)
 
+def changeTeachShowPhoto(obj):
+    teach_show_photo = obj.get('teach_show_photo',None)
+    if teach_show_photo and teach_show_photo !='':
+        obj['teach_show_photo'] =teach_show_photo.split(',')
+def defaultChangeTeachShowPhoto(obj):
+    """
+    {"teach_show_photo": [
+          {"img":""},
+          {"img":""},
+          {"img":""}
+       ]}
+    :param obj:
+    :return:
+    """
+    teach_show_photo = obj.get('teach_show_photo',None)
+    img = []
+    if teach_show_photo and teach_show_photo !='':
+        for t in teach_show_photo.split(','):
+            img.append({"img":t})
+    obj['teach_show_photo'] = img
 def changeLearningPhase(obj):
     """
     学习阶段(0-其他 1-幼升小 2-小学 3-初中 4-高中)
@@ -356,6 +388,12 @@ def changeWeekEndToRange(obj, time):
                 date = u"星期日晚上 "
             obj["time"] = obj["time"] + date
 
-
-
-
+def changePassnot(obj):
+    if obj.has_key("pass_not"):
+        pass_not = obj["pass_not"]
+        if pass_not == 0:
+            obj["pass_not"] = u"未通过"
+        if pass_not == 1:
+            obj["pass_not"] = u""
+        if pass_not == 2:
+            obj["pass_not"] = u"已通过"

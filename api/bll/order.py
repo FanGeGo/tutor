@@ -196,16 +196,17 @@ def judge(teach_willing,result):
     return result
 
 @login_required()
-@api_view(['GET'])
+@api_view(['POST'])
 @authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
 def getOrder(request):
     user = AuthUser.objects.get(username=request.user.username)
     t = user.teacher_set.all()
     pd = user.parentorder_set.all()
-    oas = None
+    size = int(request.data.get("size",0))
+    start = int(request.data.get("start",0)) * size
     if len(t) > 0:
         #老师的订单详情
-        oas = OrderApply.objects.filter(tea=t[0])
+        oas = OrderApply.objects.filter(tea=t[0])[start:size]
         results = []
         for oa in oas:
             oa.name= oa.pd.name
@@ -258,7 +259,7 @@ def getOrder(request):
 
     elif len(pd) > 0:
         #家长的订单详情
-        oas = OrderApply.objects.filter(pd=pd[0])
+        oas = OrderApply.objects.filter(pd=pd[0])[start:size]
         results = []
         for oa in oas:
             oa.name= oa.tea.name
@@ -303,9 +304,8 @@ def getOrder(request):
                     elif oa.parent_willing == 2:
                         oa.result = u"已成交"
         return Response(OrderApplySerializer(oas,many=True).data)
-
-    if not oas:
-        return Response({"info":"没有订单！"})
+    else:
+        return JsonResponse([])
 
 @login_required()
 @api_view(['POST'])
