@@ -51,7 +51,7 @@ def applyParent(request):
             #老师报名家长，老师可以报名多个家长!!
 
             #检查家长是否已经邀请该老师，是否已经存在两个人的对应订单
-            orders = OrderApply.objects.filter(apply_type=2,pd=pd,tea=teacher)
+            orders = OrderApply.objects.filter(apply_type=2,pd=pd,tea=teacher,finished__in=[0,2])
             if len(orders):
                 return JsonError(u"该家长已经邀请了您！")
 
@@ -133,15 +133,15 @@ def inviteTeacher(request):
         if method == 1 :
             #家长邀请老师
             #如果家长已经邀请了其他老师，并且未完全，返回错误
-            oa = OrderApply.objects.filter(apply_type=2, pd=parentorder,finished=0)
+            oa = OrderApply.objects.filter(apply_type=2, pd=parentorder,finished__in=[0,2])
             if len(oa) != 0:
                 return JsonError(u"您有未完成处理的订单！")
             #如果老师已经报名了该家长
-            orders = OrderApply.objects.filter(apply_type=1,pd=parentorder,tea=teacher)
+            orders = OrderApply.objects.filter(apply_type=1,pd=parentorder,tea=teacher,finished__in=[0,2])
             if len(orders):
                 return JsonError(u"该老师已经向您报名了！")
             #老师之前拒绝了该家长，家长再次报名老师
-            orders = OrderApply.objects.filter(apply_type=2,pd=parentorder,tea=teacher)
+            orders = OrderApply.objects.filter(apply_type=2,pd=parentorder,tea=teacher,finished=1)
             if len(orders):
                 order = orders[0]
                 order.finished = 0
@@ -169,7 +169,7 @@ def inviteTeacher(request):
         elif method == 0 :
             try:
                 with transaction.atomic():
-                    #取消订单
+                    #取消订单,管理员审核中不能取消
                     orders = OrderApply.objects.filter(apply_type=2, pd=parentorder,tea=teacher,finished=0)
                     if len(orders):
                         order = orders[0]
@@ -352,7 +352,7 @@ def handleOrder(request):
             if ( len(parentorders ) and  len(teas) ):
                 pd = parentorders[0]
                 tea = teas[0]
-                orders = OrderApply.objects.filter(apply_type=1, tea=tea, pd=pd)
+                orders = OrderApply.objects.filter(tea=tea, pd=pd,finished=0)
                 if len(orders) :
                     order = orders[0]
                     #对订单进行处理
@@ -382,8 +382,11 @@ def handleOrder(request):
                 return JsonError(u"处理错误，请确定数据无误！")
         else:
         #老师处理家长
+        #finished为0
         # 第一种情况：老师处理家长的邀请
         # 第二种情况：老师报名家长后，家长同意后，老师再次处理同意
+        #finished为1
+        #老师拒绝了家长，再次接受邀请，tea=tea,pd=pd,finished=1,type=2
             teas = user.teacher_set.all()
             parentorders = ParentOrder.objects.filter(pd_id = id)
             if ( len(parentorders ) and  len(teas) ):

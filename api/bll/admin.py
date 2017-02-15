@@ -455,6 +455,8 @@ def getDoneList(request):
     for oa in oas:
         oa.name= oa.tea.name
         oa.pd_name= oa.pd.name
+        oa.parent_tel = oa.pd.tel
+        oa.teacher_tel = oa.tea.tel
         if oa.finished == 2:
             oa.result = u"未处理"
         elif oa.finished == 1:

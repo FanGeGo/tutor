@@ -192,37 +192,51 @@ def getTeachers(request):
     pds = user.parentorder_set.all()
     if len(pds) > 0:
         pd = pds[0]
-    else:
+         #获取到老师的数据，需要判断是不是报名或者被邀请
+        for t in teachers:
+            t.isInvited = ''
+            #家长主动
+            orderApplyA = OrderApply.objects.filter(apply_type=2, pd=pd,tea= t)
+            if len(orderApplyA):
+                oa = orderApplyA[0]
+
+                if oa.finished == 0:
+                    if oa.teacher_willing == 1:
+                        t.isInvited = u"您已邀请"
+                    elif oa.teacher_willing == 2:
+                        t.isInvited = u"管理员审核中"
+                if oa.finished == 1:
+                    if oa.teacher_willing == 0:
+                        t.isInvited = u"老师已拒绝"
+                    if oa.teacher_willing == 2:
+                        t.isInvited = u"已成交"
+                if oa.finished == 2:
+                    t.isInvited = u"管理员审核中"
+
+                t.teacher_willing = oa.teacher_willing
+            else:
+                #老师主动
+                orderApplyB = OrderApply.objects.filter(apply_type=1, pd=pd,tea= t)
+                if len(orderApplyB):
+                    # t.parent_willing = orderApplyB[0].parent_willing
+                    oa = orderApplyB[0]
+                    if oa.finished == 0:
+                        if oa.parent_willing == 1:
+                            t.isInvited = u"向您报名"
+                        elif oa.parent_willing == 2 and oa.teacher_willing == 1:
+                            t.isInvited = u"您已同意"
+                        elif oa.parent_willing == 2 and oa.teacher_willing == 2:
+                            t.isInvited = u"管理员审核中"
+                    if oa.finished == 1:
+                        if oa.parent_willing == 0:
+                            t.isInvited = u"已拒绝"
+                        elif oa.parent_willing == 2 and oa.teacher_willing == 2:
+                            t.isInvited = u"已成交"
+                    if oa.finished == 2:
+                        t.isInvited = u"管理员审核中"
+                    t.parent_willing = oa.parent_willing
+    elif len(pds) == 0 and not user.is_superuser:
         return JsonError("家长不存在！请重新填问卷")
-
-    #获取到老师的数据，需要判断是不是报名或者被邀请
-    for t in teachers:
-        t.isInvited = ''
-        #家长主动
-        orderApplyA = OrderApply.objects.filter(apply_type=2, pd=pd,tea= t)
-        if len(orderApplyA):
-            orderApply = orderApplyA[0]
-            #完成
-            if orderApply.teacher_willing == 1:
-                t.isInvited = u'已邀请'
-            elif orderApply.teacher_willing == 0:
-                t.isInvited = u'已拒绝'
-            elif orderApply.teacher_willing == 2:
-                t.isInvited = u'已完成'
-
-            t.teacher_willing = orderApplyA[0].teacher_willing
-        else:
-            #老师主动
-            orderApplyB = OrderApply.objects.filter(apply_type=1, pd=pd,tea= t)
-            if len(orderApplyB):
-                # t.parent_willing = orderApplyB[0].parent_willing
-                orderApply = orderApplyB[0]
-                if orderApply.parent_willing == 1:
-                    t.isInvited = u'已报名'
-                elif orderApply.parent_willing == 0:
-                    t.isInvited = u'已拒绝'
-                elif orderApply.parent_willing == 2:
-                    t.isInvited = u'已完成'
 
     serializer = TeacherSerializer(teachers, many=True)
     teachersData = serializer.data
