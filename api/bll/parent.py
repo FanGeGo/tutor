@@ -155,26 +155,41 @@ def getParentOrder(request):
         #老师主动报名
         orderApplyA = OrderApply.objects.filter(apply_type=1, pd=po,tea= tea)
         if len(orderApplyA):
-            orderApply = orderApplyA[0]
+            oa = orderApplyA[0]
             #完成
-            if orderApply.parent_willing == 1:
-                po.isInvited = u'已报名'
-            elif orderApply.parent_willing == 0:
-                po.isInvited = u'已拒绝'
-            elif orderApply.parent_willing == 2:
-                po.isInvited = u'已完成'
+            if oa.finished == 0:
+                if oa.teacher_willing == 1:
+                    po.isInvited = u"您已邀请"
+                elif oa.teacher_willing == 2:
+                    po.isInvited = u"管理员审核中"
+            if oa.finished == 1:
+                if oa.teacher_willing == 0:
+                    po.isInvited = u"老师已拒绝"
+                if oa.teacher_willing == 2:
+                    po.isInvited = u"已成交"
+            if oa.finished == 2:
+                po.isInvited = u"管理员审核中"
         else:
             #家长主动邀请
             orderApplyB = OrderApply.objects.filter(apply_type=2, pd=po,tea= tea)
             if len(orderApplyB):
                 # t.parent_willing = orderApplyB[0].parent_willing
-                orderApply = orderApplyB[0]
-                if orderApply.teacher_willing == 1:
-                    po.isInvited = u'已邀请'
-                elif orderApply.teacher_willing == 0:
-                    po.isInvited = u'已拒绝'
-                elif orderApply.teacher_willing == 2:
-                    po.isInvited = u'已完成'
+                oa = orderApplyB[0]
+
+                if oa.finished == 0:
+                    if oa.parent_willing == 1:
+                        po.isInvited = u"向您报名"
+                    elif oa.parent_willing == 2 and oa.teacher_willing == 1:
+                        po.isInvited = u"您已同意"
+                    elif oa.parent_willing == 2 and oa.teacher_willing == 2:
+                        po.isInvited = u"管理员审核中"
+                if oa.finished == 1:
+                    if oa.parent_willing == 0:
+                        po.isInvited = u"已拒绝"
+                    elif oa.parent_willing == 2 and oa.teacher_willing == 2:
+                        po.isInvited = u"已成交"
+                if oa.finished == 2:
+                    po.isInvited = u"管理员审核中"
 
     serializer = ParentOrderSerializer(parentOrders, many=True)
     result = serializer.data
