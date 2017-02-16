@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+import time
+
 __author__ = 'yinzishao'
 
 from rest_framework.decorators import api_view,authentication_classes
@@ -31,7 +33,7 @@ def getMsg(request):
     size = int(request.data.get("size",0))
     start = int(request.data.get("start",0)) * size
     user = AuthUser.objects.get(username=request.user.username)
-    msgs = user.receiver.all()[start:start + size]
+    msgs = user.receiver.all().order_by('-update_time')[start:start + size]
     for msg in msgs:
         msg.isDetailed = False
     serializer = MessageSerializer(msgs, many=True)
@@ -54,5 +56,6 @@ def readMessage(request):
     """
     msg_id = request.data.get("msg_id", None)
     user = AuthUser.objects.get(username=request.user.username)
-    msg = Message.objects.filter(msg_id=msg_id, receiver = user).update(status=1)
+    now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    msg = Message.objects.filter(msg_id=msg_id, receiver = user).update(status=1,update_time=now)
     return JsonResponse()

@@ -149,7 +149,7 @@ def getParentOrder(request):
         tea = teas[0]
     else:
         return JsonError(u"您不是老师！请重新填问卷")
-    parentOrders = ParentOrder.objects.filter(**filter)[start:start + size]
+    parentOrders = ParentOrder.objects.filter(**filter).order_by('-update_time')[start:start + size]
     for po in parentOrders:
         po.isInvited = ''
         #老师主动报名

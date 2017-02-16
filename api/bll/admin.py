@@ -155,7 +155,7 @@ def getOrders(request):
     size = int(request.data.get("size",0))
     start = int(request.data.get("start",0)) * size
     if userType == "parent":
-        oas = OrderApply.objects.filter(pd_id=id)[start:start+size]
+        oas = OrderApply.objects.filter(pd_id=id).order_by('-update_time')[start:start+size]
         #家长的订单详情
         results = []
         for oa in oas:
@@ -205,7 +205,7 @@ def getOrders(request):
                         oa.result = u"管理员审核中"
                 if oa.finished == 1:
                     if oa.parent_willing == 0:
-                        oa.result = u"已拒绝"
+                        oa.result = u"您已拒绝"
                     elif oa.parent_willing == 2 and oa.teacher_willing == 2:
                         oa.result = u"已成交"
                 if oa.finished == 2:
@@ -213,7 +213,7 @@ def getOrders(request):
         return Response(OrderApplySerializer(oas,many=True).data)
     elif userType == "teacher":
         #老师的订单详情
-        oas = OrderApply.objects.filter(tea_id=id)[start:start+size]
+        oas = OrderApply.objects.filter(tea_id=id).order_by('-update_time')[start:start+size]
         results = []
         for oa in oas:
             oa.name= oa.pd.name
@@ -358,7 +358,7 @@ def getCheckList(request):
     start = int(request.data.get("start",0)) * size
     res = []
     if selected == 1:
-        teas = Teacher.objects.filter(pass_not = 1)[start:start+size]
+        teas = Teacher.objects.filter(pass_not = 1).order_by('-update_time')[start:start+size]
         serializer = TeacherSerializer(teas,many=True)
         result = serializer.data
         for r in result:
@@ -369,7 +369,7 @@ def getCheckList(request):
             }
             res.append(temp)
     elif selected == 2:
-        pds = ParentOrder.objects.filter(pass_not = 1)[start:start+size]
+        pds = ParentOrder.objects.filter(pass_not = 1).order_by('-update_time')[start:start+size]
         serializer = ParentOrderSerializer(pds,many=True)
         result = serializer.data
 
@@ -451,7 +451,7 @@ def getDoneList(request):
     """
     size = int(request.data.get("size",0))
     start = int(request.data.get("start",0)) * size
-    oas = OrderApply.objects.filter(teacher_willing=2,parent_willing=2,finished__gte=1)[start:start+size]
+    oas = OrderApply.objects.filter(teacher_willing=2,parent_willing=2,finished__gte=1).order_by('-update_time')[start:start+size]
     for oa in oas:
         oa.name= oa.tea.name
         oa.pd_name= oa.pd.name
@@ -485,7 +485,9 @@ def sendPhone(request):
         pd_name  = oa.pd.name
         message_title = u"向您发送了" + pd_name +u"家长的联系方式！"
         message_content = pd_name + u"家长的联系方式是" + str(tel)
-        message = Message(sender=user, receiver=tea.wechat, message_title=message_title, message_content=message_content,status=0)
+        now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        message = Message(sender=user, receiver=tea.wechat, message_title=message_title,
+                          message_content=message_content,status=0,update_time=now,create_time=now)
         message.save()
         oa.tel = str(tel)
         oa.finished = 1
@@ -517,7 +519,9 @@ def remindFeedBack(request):
         return JsonError(u"输入数据的user值不对")
     if len(objs):
         obj = objs[0]
-        message = Message(sender=user, receiver=obj.wechat, message_title=message_title, message_content=message_content,status=0)
+        now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+        message = Message(sender=user, receiver=obj.wechat, message_title=message_title,
+                          message_content=message_content,status=0,update_time=now,create_time=now)
         message.save()
         return JsonResponse()
     else:
@@ -564,7 +568,7 @@ def getFeedBack(request):
     """
     size = int(request.data.get("size",0))
     start = int(request.data.get("start",0)) * size
-    fbs = Feedback.objects.all()[start : start + size]
+    fbs = Feedback.objects.all().order_by('-create_time')[start : start + size]
     rating = ['one','two','three','four','five']
     for fb in fbs:
         user = fb.wechat

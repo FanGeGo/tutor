@@ -156,7 +156,8 @@ class Message(models.Model):
     message_title = models.TextField(blank=True, null=True)
     status = models.IntegerField(blank=True, null=True)
     receiver = models.ForeignKey(AuthUser, db_column='receiver', blank=True, null=True,related_name="receiver")
-
+    create_time = models.DateTimeField(blank=True, null=True)
+    update_time = models.DateTimeField(blank=True, null=True)
     class Meta:
         managed = False
         db_table = 'message'

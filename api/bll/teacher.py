@@ -177,9 +177,9 @@ def getTeachers(request):
     hot = request.data.get("hot",1)
     where = []
     filter = {}
-    order = '-hot_not'
+    order = ['-hot_not','-update_time']
     if hot == 2:
-        order = '-update_time'
+        order = ['-update_time']
     if subject and subject != '':
         where = ['FIND_IN_SET("'+subject+'",subject)']
     #年级,如果里面是字符串，需要加引号
@@ -187,7 +187,7 @@ def getTeachers(request):
         where = ['FIND_IN_SET("'+grade+'",grade)']
     if keyword and keyword != '':
         filter["name__contains"] = keyword
-    teachers = Teacher.objects.extra(where=where).filter(**filter).order_by(order)[start:start + size]
+    teachers = Teacher.objects.extra(where=where).filter(**filter).order_by(*order)[start:start + size]
     user = AuthUser.objects.get(username=request.user.username)
     pds = user.parentorder_set.all()
     if len(pds) > 0:
@@ -229,7 +229,7 @@ def getTeachers(request):
                             t.isInvited = u"管理员审核中"
                     if oa.finished == 1:
                         if oa.parent_willing == 0:
-                            t.isInvited = u"已拒绝"
+                            t.isInvited = u"您已拒绝"
                         elif oa.parent_willing == 2 and oa.teacher_willing == 2:
                             t.isInvited = u"已成交"
                     if oa.finished == 2:

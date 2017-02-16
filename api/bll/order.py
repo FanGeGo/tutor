@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+import time
 from django.utils import timezone
 
 __author__ = 'yinzishao'
@@ -74,8 +75,11 @@ def applyParent(request):
                     order.save()
                     message_title = teacher.name + u"向您报名!"
                     message_content = teacher.name + u"向您报名!请到“我的老师”处查看详细信息!"
+                    now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
                     #新建消息
-                    message = Message(sender=user, receiver=pd.wechat,message_title=message_title, message_content=message_content,status=0)
+                    message = Message(sender=user, receiver=pd.wechat,
+                                      message_title=message_title, message_content=message_content,
+                                      status=0,update_time=now,create_time=now)
                     message.save()
                     #TODO:推送到微信端
 
@@ -94,8 +98,11 @@ def applyParent(request):
                         order.delete()
                         message_title = teacher.name + u"取消了报名!"
                         message_content = teacher.name + u"取消了报名!"
+                        now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
                         #新建消息
-                        message = Message(sender=user, receiver=teacher.wechat, message_title=message_title, message_content=message_content,status=0)
+                        message = Message(sender=user, receiver=teacher.wechat,
+                                          message_title=message_title, message_content=message_content,
+                                          status=0,update_time=now,create_time=now)
                         message.save()
                     else:
                         return JsonError(u"找不到该订单")
@@ -156,10 +163,14 @@ def inviteTeacher(request):
                 with transaction.atomic():
                     #新建订单
                     order.save()
+                    now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
                     message_title = parentorder.name + u"向您发起了邀请!"
                     message_content = parentorder.name + u"向您发起了邀请!请到“我的家长”处查看详细信息!"
                     #新建消息
-                    message = Message(sender=user, receiver=teacher.wechat, message_title=message_title, message_content=message_content,status=0)
+                    message = Message(sender=user, receiver=teacher.wechat,
+                                      message_title=message_title,
+                                      message_content=message_content,
+                                      status=0,update_time=now,create_time=now)
                     message.save()
                     #TODO:推送到微信端
 
@@ -174,10 +185,13 @@ def inviteTeacher(request):
                     if len(orders):
                         order = orders[0]
                         order.delete()
+                        now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
                         message_title = parentorder.name + u"取消了邀请!"
                         message_content = parentorder.name + u"取消了邀请!"
                         #新建消息
-                        message = Message(sender=user, receiver=teacher.wechat, message_title=message_title, message_content=message_content,status=0)
+                        message = Message(sender=user, receiver=teacher.wechat,
+                                          message_title=message_title,
+                                          message_content=message_content,status=0,update_time=now,create_time=now)
                         message.save()
                         #TODO:推送到微信端
                     else:
@@ -206,7 +220,7 @@ def getOrder(request):
     start = int(request.data.get("start",0)) * size
     if len(t) > 0:
         #老师的订单详情
-        oas = OrderApply.objects.filter(tea=t[0])[start:size]
+        oas = OrderApply.objects.filter(tea=t[0]).order_by('-update_time')[start:size]
         results = []
         for oa in oas:
             oa.name= oa.pd.name
@@ -268,7 +282,7 @@ def getOrder(request):
 
     elif len(pd) > 0:
         #家长的订单详情
-        oas = OrderApply.objects.filter(pd=pd[0])[start:size]
+        oas = OrderApply.objects.filter(pd=pd[0]).order_by('-update_time')[start:size]
         results = []
         for oa in oas:
             oa.name= oa.tea.name
@@ -317,7 +331,7 @@ def getOrder(request):
                         oa.result = u"管理员审核中"
                 if oa.finished == 1:
                     if oa.parent_willing == 0:
-                        oa.result = u"已拒绝"
+                        oa.result = u"你已拒绝"
                     elif oa.parent_willing == 2 and oa.teacher_willing == 2:
                         oa.result = u"已成交"
                 if oa.finished == 2:
@@ -366,7 +380,10 @@ def handleOrder(request):
                         message_title = pd.name + u"拒绝了你的报名！"
                         message_content = pd.name + u"拒绝了你的报名！请到“我的家长”处查看详细信息!"
                     #新建消息
-                    message = Message(sender=user, receiver=tea.wechat, message_title=message_title, message_content=message_content,status=0)
+                    now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+                    message = Message(sender=user, receiver=tea.wechat,
+                                      message_title=message_title, message_content=message_content,
+                                      status=0,update_time=now,create_time=now)
                     try:
                         with transaction.atomic():
                             message.save()
@@ -413,7 +430,9 @@ def handleOrder(request):
                         order.finished = 1
                         message_title = tea.name + u"拒绝了你的邀请！"
                         message_content = tea.name + u"拒绝了你的邀请！请到“我的老师”处查看详细信息!"
-                    message = Message(sender=user, receiver=pd.wechat, message_title=message_title, message_content=message_content,status=0)
+                    now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+                    message = Message(sender=user, receiver=pd.wechat, message_title=message_title,
+                                      message_content=message_content,status=0,update_time=now,create_time=now)
                     try:
                         with transaction.atomic():
                             message.save()
