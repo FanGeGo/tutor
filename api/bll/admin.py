@@ -501,3 +501,17 @@ def deleteOrder(request):
         return JsonResponse()
     else:
         return JsonError(u"not found")
+
+@login_required()
+@api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+@permission_classes((IsAdminUser,))
+def getAdminParent(request):
+    size = int(request.data.get("size",0))
+    start = int(request.data.get("start",0)) * size
+    user = AuthUser.objects.get(username=request.user.username)
+    parentOrders = user.parentorder_set.all().order_by('-update_time')[start:start + size]
+    serializer = ParentOrderSerializer(parentOrders, many=True)
+    result = serializer.data
+    getParentOrderObj(result, many=True)
+    return Response(result)

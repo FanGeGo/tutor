@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^getFeedBack', csrf_exempt(views.getFeedBack)),
     url(r'^deleteOrder', csrf_exempt(views.deleteOrder)),
     url(r'^deleteBanner', csrf_exempt(views.deleteBanner)),
+    url(r'^getAdminParent', csrf_exempt(views.getAdminParent)),
 ]
 
 
