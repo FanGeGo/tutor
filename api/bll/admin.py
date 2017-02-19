@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from tutor.http import JsonResponse,JsonError
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config,Feedback
 from django.db import transaction
-from wechat_auth.helpers import changeSingleBaseToImg,getParentOrderObj,changeTime,getTeacherObj
+from wechat_auth.helpers import changeSingleBaseToImg,getParentOrderObj,changeTime,getTeacherObj, getTeacherResult, \
+    getParentResult
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAdminUser
 from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime,defaultChangeTeachShowPhoto
@@ -160,56 +161,7 @@ def getOrders(request):
         results = []
         for oa in oas:
             oa.name= oa.tea.name
-            if oa.apply_type == 2:
-                oa.type = "parent"
-                #家长主动，finished为0
-                #1.老师意愿为1，家长端订单显示为“已邀请”
-                #2.老师意愿为2，老师正在上传截图
-                #finished为1
-                #1. 老师意愿为0，家长意愿为2，老师拒绝
-                #2. 老师意愿为2，已成交
-                #意愿第一判断可以更简洁
-                #finished为2
-                #1. 老师意愿为2,管理员审核中
-                #2. 老师意愿为0,管理员不通过（暂无）
-                if oa.finished == 0:
-                    if oa.teacher_willing == 1:
-                        oa.result = u"您已邀请"
-                    elif oa.teacher_willing == 2:
-                        oa.result = u"管理员审核中"
-                if oa.finished == 1:
-                    if oa.teacher_willing == 0:
-                        oa.result = u"老师已拒绝"
-                    if oa.teacher_willing == 2:
-                        oa.result = u"已成交"
-                if oa.finished == 2:
-                    oa.result = u"管理员审核中"
-            elif oa.apply_type == 1:
-                oa.type = "teacher"
-                #教师主动，finished为0
-                #家长意愿为1，老师向其报名
-                #家长意愿为2，老师意愿为1，家长同意
-                #家长意愿为2，老师意愿为2，老师正在上传截图
-                #finished为1
-                #家长意愿为2，老师意愿为2，已成交
-                #家长意愿为0，已拒绝
-                #finished为2
-                #1. 老师意愿为2,管理员审核中
-                #2. 老师意愿为0,管理员不通过（暂无）
-                if oa.finished == 0:
-                    if oa.parent_willing == 1:
-                        oa.result = u"向您报名"
-                    elif oa.parent_willing == 2 and oa.teacher_willing == 1:
-                        oa.result = u"您已同意"
-                    elif oa.parent_willing == 2 and oa.teacher_willing == 2:
-                        oa.result = u"管理员审核中"
-                if oa.finished == 1:
-                    if oa.parent_willing == 0:
-                        oa.result = u"您已拒绝"
-                    elif oa.parent_willing == 2 and oa.teacher_willing == 2:
-                        oa.result = u"已成交"
-                if oa.finished == 2:
-                    oa.result = u"管理员审核中"
+            oa.result = getTeacherResult(oa)
         return Response(OrderApplySerializer(oas,many=True).data)
     elif userType == "teacher":
         #老师的订单详情
@@ -217,59 +169,8 @@ def getOrders(request):
         results = []
         for oa in oas:
             oa.name= oa.pd.name
-            if oa.apply_type == 2:
-                oa.type = "parent"
-                #家长主动,finished为0
-                #1. 老师意愿为1，老师端订单显示为“已邀请”
-                #2. 老师意愿为2，老师正在上传截图
-                #finished为1
-                #1. 老师意愿为0，老师拒绝/老师未按时上传截图
-                #2. 老师意愿为2，老师上传截图，管理员通过，完成订单
-                #finished为2
-                #1. 老师意愿为2,管理员审核中
-                #2. 老师意愿为0,管理员不通过（暂无）
-                if oa.finished == 0:
-                    if oa.teacher_willing == 1:
-                        oa.result = u"对方已邀请"
-                    elif oa.teacher_willing == 2:
-                        oa.result = u"请上传截图"
-                if oa.finished ==1:
-                    if oa.teacher_willing == 0:
-                        oa.result = u"您已拒绝"
-                    if oa.teacher_willing == 2:
-                        oa.result = u"已成交"
-                if oa.finished == 2:
-                    oa.result = u"管理员审核中"
-            elif oa.apply_type == 1:
+            oa.result = getParentResult(oa)
 
-                oa.type = "teacher"
-                #教师主动,finished为0
-                #1. 家长意愿为1，老师端订单显示为“已报名”
-                #2. 家长意愿为2和老师意愿为1，家长同意
-                #3. 家长意愿为2和老师意愿为2，老师正在上传截图
-                #finished为1
-                #1. 家长意愿为0，老师意愿为1，家长拒绝
-                #2. 家长意愿为2，老师意愿为2，老师上传截图，完成订单
-                #3. 家长意愿为2，老师意愿为0，代表未按时上传截图
-                #finished为2
-                #1. 老师意愿为2,管理员审核中
-                #2. 老师意愿为0,管理员不通过（暂无）
-                if oa.finished == 0:
-                    if oa.parent_willing == 1:
-                        oa.result = u"您已报名"
-                    elif oa.parent_willing == 2 and oa.teacher_willing == 1:
-                        oa.result = u"对方已同意"
-                    elif oa.parent_willing == 2 and oa.teacher_willing ==2:
-                        oa.result = u"请上传截图"
-                if oa.finished == 1:
-                    if oa.parent_willing == 0:
-                        oa.result = u"家长已拒绝"
-                    elif oa.parent_willing == 2 and oa.teacher_willing == 0:
-                        oa.result = u"您未按时上传截图"
-                    elif oa.parent_willing == 2 and oa.teacher_willing == 2:
-                        oa.result = u"已成交"
-                if oa.finished == 2:
-                    oa.result = u"管理员审核中"
         return Response(OrderApplySerializer(oas,many=True).data)
     else:
         return JsonError(u"输入数据的user值不对")

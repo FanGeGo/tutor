@@ -11,7 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from tutor.http import JsonResponse,JsonError
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config
-from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime,changeSingleBaseToImg,defaultChangeTeachShowPhoto
+from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime,changeSingleBaseToImg,defaultChangeTeachShowPhoto, \
+    getTeacherResult
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -196,45 +197,11 @@ def getTeachers(request):
         for t in teachers:
             t.isInvited = ''
             #家长主动
-            orderApplyA = OrderApply.objects.filter(apply_type=2, pd=pd,tea= t)
-            if len(orderApplyA):
-                oa = orderApplyA[0]
+            orderApply = OrderApply.objects.filter(pd=pd,tea= t)
+            if len(orderApply):
+                oa = orderApply[0]
+                t.isInvited = getTeacherResult(oa)
 
-                if oa.finished == 0:
-                    if oa.teacher_willing == 1:
-                        t.isInvited = u"您已邀请"
-                    elif oa.teacher_willing == 2:
-                        t.isInvited = u"管理员审核中"
-                if oa.finished == 1:
-                    if oa.teacher_willing == 0:
-                        t.isInvited = u"老师已拒绝"
-                    if oa.teacher_willing == 2:
-                        t.isInvited = u"已成交"
-                if oa.finished == 2:
-                    t.isInvited = u"管理员审核中"
-
-                t.teacher_willing = oa.teacher_willing
-            else:
-                #老师主动
-                orderApplyB = OrderApply.objects.filter(apply_type=1, pd=pd,tea= t)
-                if len(orderApplyB):
-                    # t.parent_willing = orderApplyB[0].parent_willing
-                    oa = orderApplyB[0]
-                    if oa.finished == 0:
-                        if oa.parent_willing == 1:
-                            t.isInvited = u"向您报名"
-                        elif oa.parent_willing == 2 and oa.teacher_willing == 1:
-                            t.isInvited = u"您已同意"
-                        elif oa.parent_willing == 2 and oa.teacher_willing == 2:
-                            t.isInvited = u"管理员审核中"
-                    if oa.finished == 1:
-                        if oa.parent_willing == 0:
-                            t.isInvited = u"您已拒绝"
-                        elif oa.parent_willing == 2 and oa.teacher_willing == 2:
-                            t.isInvited = u"已成交"
-                    if oa.finished == 2:
-                        t.isInvited = u"管理员审核中"
-                    t.parent_willing = oa.parent_willing
     elif len(pds) == 0 and not user.is_superuser:
         return JsonError("家长不存在！请重新填问卷")
 
