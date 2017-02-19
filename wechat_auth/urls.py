@@ -10,3 +10,12 @@ urlpatterns = [
     # url(r'^loginSuc', views.loginSuc),
     url(r'^authorization', views.authorization),
 ]
+
+import os
+from django.conf.urls.static import static
+from django.conf import settings
+if settings.DEBUG:
+    tutor_web = os.path.join(settings.BASE_DIR,'tutor_web')
+    admin = os.path.join(settings.BASE_DIR,'Administor')
+    urlpatterns += static('/tutor_web/', document_root=tutor_web)
+    urlpatterns += static('/administor/', document_root=admin)
