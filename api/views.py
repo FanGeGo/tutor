@@ -21,7 +21,7 @@ from tutor.http import JsonResponse,JsonError
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config
 from django.db import transaction
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
+from wechat_auth.helpers import generate_jsapi_signature
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
@@ -64,3 +64,14 @@ def getText(request):
         return JsonResponse(result)
     except Exception,e:
         return JsonError(e.message)
+
+@login_required()
+@api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+def generate_signature(request):
+    timestamp = request.data.get('timestamp',None)
+    nonceStr = request.data.get('nonceStr',None)
+    url = request.get_host()+request.get_full_path()
+    return JsonResponse({
+        "signature":generate_jsapi_signature(timestamp,nonceStr,url)
+    })

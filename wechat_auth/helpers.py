@@ -99,6 +99,9 @@ conf = WechatConf(
     jsapi_ticket_setfunc=set_jsapi_ticket_function
 )
 
+def generate_jsapi_signature(timestamp,nonceStr,url):
+    jt = conf.get_jsapi_ticket()
+    return WechatBasic().generate_jsapi_signature(timestamp,nonceStr,url,jt['jsapi_ticket'])
 # import time
 # jt = conf.get_jsapi_ticket()
 # print WechatBasic().generate_jsapi_signature(1482652615,"yinzishao","http://www.yinzishao.cn/testjs",jt['jsapi_ticket'])
