@@ -11,15 +11,16 @@ week = ["mon_begin","mon_end","tues_begin","tues_end",
             "wed_begin","wed_end","thur_begin","thur_end","fri_begin","fri_end"]
 weekend = ["sat_morning","sat_afternoon","sat_evening",
                "sun_morning","sun_afternoon","sun_evening"]
+token_path = settings.BASE_DIR + '/wechat_auth/access_token.json'
 def get_access_token_function():
     """ 注意返回值为一个 Tuple，第一个元素为 access_token 的值，第二个元素为 access_token_expires_at 的值 """
-    with open('access_token.json', 'r') as f:
+    with open(token_path, 'r') as f:
         data = json.loads(f.read())
         return (data['access_token'],data['access_token_expires_at'])
 
 
 def set_access_token_function(access_token=None, access_token_expires_at=None):
-    with open('access_token.json', 'r+') as f :
+    with open(token_path, 'r+') as f :
         data = f.read()
         d = json.loads(data)
         d["access_token"] = access_token
@@ -30,12 +31,12 @@ def set_access_token_function(access_token=None, access_token_expires_at=None):
 
 
 def get_jsapi_ticket_function():
-    with open('access_token.json', 'r') as f:
+    with open(token_path, 'r') as f:
         data = json.loads(f.read())
         return (data['jsapi_ticket'],data['jsapi_ticket_expires_at'])
 
 def set_jsapi_ticket_function(jsapi_ticket=None, jsapi_ticket_expires_at=None):
-    with open('access_token.json', 'r+') as f :
+    with open(token_path, 'r+') as f :
         data = f.read()
         d = json.loads(data)
         d["jsapi_ticket"] = jsapi_ticket
@@ -85,7 +86,6 @@ def sendTemplateMessage():
             }
         }
     }
-    print post_data
     import requests
     requests.post(url,json=post_data)
 
@@ -100,8 +100,8 @@ conf = WechatConf(
 )
 
 # import time
-jt = conf.get_jsapi_ticket()
-print WechatBasic().generate_jsapi_signature(1482652615,"yinzishao","http://www.yinzishao.cn/testjs",jt['jsapi_ticket'])
+# jt = conf.get_jsapi_ticket()
+# print WechatBasic().generate_jsapi_signature(1482652615,"yinzishao","http://www.yinzishao.cn/testjs",jt['jsapi_ticket'])
 # # sendTemplateMessage()
 dir = settings.BASE_DIR + '/api/static/'
 
