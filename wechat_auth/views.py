@@ -11,6 +11,9 @@ from wechat_sdk.messages import (TextMessage, VoiceMessage, ImageMessage,
     VideoMessage, LinkMessage, LocationMessage, EventMessage
 )
 from wechat_sdk.context.framework.django import DatabaseContextStore
+
+from api.models import AuthUser
+
 APP_ID = "wx6fe7f0568b75d925"
 APP_SECRET = "bb5550ec25cfdd716dcf8202ffe03eeb"
 TOKEN = "yinzishao"
@@ -163,6 +166,7 @@ def authorization(request):
     if user and user.is_active:
         user = authenticate(username=openid, password=openid)
         login(request,user)
+        user = AuthUser.objects.get(username=request.user.username)
     else:
         #返回错误
         return HttpResponse('error')
