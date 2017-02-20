@@ -140,7 +140,7 @@ def authorization(request):
     auth_info = api.exchange_code_for_access_token(code=code)
     api = WeixinAPI(access_token=auth_info['access_token'])
     resp = api.user(openid=auth_info['openid'])
-    print resp
+    request.session['info'] = resp
     """
     {   'province': 'Guangdong',
         'openid': 'odE4WwK3g05pesjOYGbwcbmOWTnc',
@@ -171,11 +171,15 @@ def authorization(request):
     parent =  user.parentorder_set.all()
     if not len(teacher) or not len(parent):
         #都不存在，返回填问卷界面
-        return HttpResponse("")
+        redirect_uri='http://www.yinzishao.cn/tutor_web/view/index.html'
+
     else:
-        #已填问卷返回，主页
-        return HttpResponse("")
-    return HttpResponse('success<a herf= "/loginSuc">测试</a>')
+        if len(teacher):
+            #已填问卷返回，主页
+            redirect_uri='http://www.yinzishao.cn/tutor_web/view/teacherPage.html'
+        elif len(parent):
+            redirect_uri='http://www.yinzishao.cn/tutor_web/view/parentPage.html'
+    return redirect(redirect_uri)
 @csrf_exempt
 def login_from_pwd(request, id=2):
     openid = 'odE4WwK3g05pesjOYGbwcbmOWTnc' + str(id)
