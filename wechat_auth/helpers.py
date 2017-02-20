@@ -409,6 +409,7 @@ def getTeacherResult(oa):
     :param oa: 订单
     :return:
     """
+    isInvited = ''
     if oa.apply_type == 2:
         #家长主动，finished为0
         #1.老师意愿为1，家长端订单显示为“已邀请”
@@ -465,6 +466,8 @@ def getParentResult(oa):
     :param oa:
     :return:
     """
+    result= ''
+
     if oa.apply_type == 1:
         #教师主动,finished为0
         #1. 家长意愿为1，老师端订单显示为“已报名”
