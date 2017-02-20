@@ -26,6 +26,7 @@ def set_access_token_function(access_token=None, access_token_expires_at=None):
         d["access_token_expires_at"] = access_token_expires_at
         f.seek(0)
         f.write(json.dumps(d))
+        f.truncate()
 
 
 def get_jsapi_ticket_function():
@@ -41,7 +42,7 @@ def set_jsapi_ticket_function(jsapi_ticket=None, jsapi_ticket_expires_at=None):
         d["jsapi_ticket_expires_at"] = jsapi_ticket_expires_at
         f.seek(0)
         f.write(json.dumps(d))
-
+        f.truncate()
 def sendTemplateMessage():
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
@@ -98,12 +99,9 @@ conf = WechatConf(
     jsapi_ticket_setfunc=set_jsapi_ticket_function
 )
 
-# print conf.get_access_token()
-# print conf.get_jsapi_ticket()
 # import time
-# jt = conf.get_jsapi_ticket()
-# print jt['jsapi_ticket']
-# print WechatBasic().generate_jsapi_signature(1482652615,"yinzishao","http://www.yinzishao.cn/testjs",jt['jsapi_ticket'])
+jt = conf.get_jsapi_ticket()
+print WechatBasic().generate_jsapi_signature(1482652615,"yinzishao","http://www.yinzishao.cn/testjs",jt['jsapi_ticket'])
 # # sendTemplateMessage()
 dir = settings.BASE_DIR + '/api/static/'
 

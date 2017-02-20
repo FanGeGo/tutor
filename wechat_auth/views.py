@@ -173,7 +173,7 @@ def authorization(request):
     #TODO：判断是不是已经填了问卷并在数据库创建了数据
     teacher = user.teacher_set.all()
     parent =  user.parentorder_set.all()
-    if not len(teacher) or not len(parent):
+    if not len(teacher) and not len(parent):
         #都不存在，返回填问卷界面
         redirect_uri='http://www.yinzishao.cn/tutor_web/view/index.html'
 
