@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import time
+import traceback
 
 __author__ = 'yinzishao'
 
@@ -515,3 +516,55 @@ def getAdminParent(request):
     result = serializer.data
     getParentOrderObj(result, many=True)
     return Response(result)
+
+@login_required()
+@api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+@permission_classes((IsAdminUser,))
+def handelUserOrder(request):
+    """
+    管理员处理订单
+    :param request:
+    {
+     "oa_id": 1         订单ID
+     "user":teacher/parent,           修改老师还是家长的意愿
+     "willing": 0/1/2      0/1/2  0：拒绝 1：待处理 2：接受
+     }
+    :return:
+    """
+    user = AuthUser.objects.get(username=request.user.username)
+    oa_id = int(request.data.get('oa_id',0))
+    userType = request.data.get('user',None)
+    willing = request.data.get('willing',None)
+    try:
+        oa = OrderApply.objects.get(oa_id = oa_id)
+        if userType == 'teacher':
+            #TODO：管理员暂时无法处理老师的订单
+            if willing == 0:
+                oa.teacher_willing = 0
+                oa.finished = 1
+            if willing == 2:
+                oa.teacher_willing = 2
+        if userType == 'parent':
+            #将家长意愿修改为拒绝
+            if willing == 0:
+                oa.parent_willing = 0
+                oa.finished = 1
+                message_title = oa.pd.name + u"拒绝了你的报名！"
+                message_content = oa.pd.name +  u"拒绝了你的报名！请到“我的家长”处查看详细信息!"
+
+            if willing == 2:
+                oa.parent_willing = 2
+                oa.finished = 0
+                message_title = oa.pd.name + u"接受了你的报名！"
+                message_content = oa.pd.name +  u"接受了你的报名！请到“我的家长”处查看详细信息!"
+
+            now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+            message = Message(sender=user, receiver=oa.tea.wechat, message_title=message_title,
+                              message_content=message_content,status=0,update_time=now,create_time=now)
+            oa.save()
+            message.save()
+        return JsonResponse()
+    except Exception,e:
+        print 'traceback.print_exc():'; traceback.print_exc()
+        return JsonError(e.message)
