@@ -8,7 +8,6 @@ function dateCompare(date1, date2) {
   }
 }
 (function(){
-  var localStorage = window.localStorage;
   Vue.http.interceptors.push(function(request, next){
     request.credentials = true;
     next();
@@ -50,7 +49,7 @@ function dateCompare(date1, date2) {
           textTip: '',
           isLoading: false,
           isOtherTutorChar: false,
-          getLocation: false,
+          getLocation: true,
           textUsername: '',
           textAddress: '',
           getTip: false,
@@ -164,9 +163,9 @@ function dateCompare(date1, date2) {
           'salary': Number,
           'allowance_not':0,
           'bonus': '',
-          'name': '李素',
-          'tel': '13532555118',
-          'address': '广州',
+          'name': '',
+          'tel': '',
+          'address': '',
           'deadline':'',
           'weekend_tutor_length': Number,
           'mon_begin':'',
