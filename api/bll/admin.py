@@ -521,7 +521,7 @@ def getAdminParent(request):
 @api_view(['POST'])
 @authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
 @permission_classes((IsAdminUser,))
-def handelUserOrder(request):
+def handleUserOrder(request):
     """
     管理员处理订单
     :param request:
