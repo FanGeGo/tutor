@@ -144,19 +144,19 @@ def getParentOrder(request):
     if keyword and keyword != '':
         filter["name__contains"] = keyword
     user = AuthUser.objects.get(username=request.user.username)
-    teas = user.teacher_set.all()
-    if len(teas) > 0:
-        tea = teas[0]
-    else:
-        return JsonError(u"您不是老师！请重新填问卷")
     parentOrders = ParentOrder.objects.filter(**filter).order_by('-update_time')[start:start + size]
-    for po in parentOrders:
-        po.isInvited = ''
-        #老师主动报名
-        orderApply = OrderApply.objects.filter(pd=po,tea= tea)
-        if len(orderApply):
-            oa = orderApply[0]
-            po.isInvited = getParentResult(oa)
+    teas = user.teacher_set.all()
+    if len(teas) > 0 and not user.is_superuser:
+        tea = teas[0]
+        for po in parentOrders:
+            po.isInvited = ''
+            #老师主动报名
+            orderApply = OrderApply.objects.filter(pd=po,tea= tea)
+            if len(orderApply):
+                oa = orderApply[0]
+                po.isInvited = getParentResult(oa)
+    elif len(teas) == 0 and not user.is_superuser:
+        return JsonError(u"您不是老师！请重新填问卷")
 
     serializer = ParentOrderSerializer(parentOrders, many=True)
     result = serializer.data

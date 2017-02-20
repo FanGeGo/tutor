@@ -191,7 +191,8 @@ def getTeachers(request):
     teachers = Teacher.objects.extra(where=where).filter(**filter).order_by(*order)[start:start + size]
     user = AuthUser.objects.get(username=request.user.username)
     pds = user.parentorder_set.all()
-    if len(pds) > 0:
+     #管理员调用该该接口,没有isInvited
+    if len(pds) > 0 and not user.is_superuser:
         pd = pds[0]
          #获取到老师的数据，需要判断是不是报名或者被邀请
         for t in teachers:
