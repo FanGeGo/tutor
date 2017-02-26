@@ -76,7 +76,7 @@ def index(request):
                 }, {
                     'title': '百度',
                     'picurl': 'http://doraemonext.oss-cn-hangzhou.aliyuncs.com/test/wechat-test.jpg',
-                    'url': 'http://www.baidu.com',
+                    'url': 'http://www.yinzishao.cn/testjs',
                 }, {
                     'title': 'Django 教程',
                     'picurl': 'http://www.ziqiangxuetang.com/media/uploads/images/django_logo_20140508_061519_35.jpg',
@@ -226,3 +226,6 @@ def login_admin(request):
     return redirect('/getNum/')
 #KN5BZ-WXX6G-P2CQ6-II5X4-Q3G65-XMF7C
 #http://apis.map.qq.com/ws/geocoder/v1/?location=39.984154,116.307490&key=KN5BZ-WXX6G-P2CQ6-II5X4-Q3G65-XMF7C
+
+def testJs(request):
+    return render(request, 'testjs.html')
