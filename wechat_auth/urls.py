@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^login_admin', views.login_admin),
     # url(r'^loginSuc', views.loginSuc),
     url(r'^authorization', views.authorization),
-    url(r'^testJs', views.testJs),
+    url(r'^testjs', views.testJs),
 ]
 
 import os

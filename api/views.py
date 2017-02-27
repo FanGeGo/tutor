@@ -71,7 +71,10 @@ def getText(request):
 def generate_signature(request):
     timestamp = request.data.get('timestamp',None)
     nonceStr = request.data.get('nonceStr',None)
-    url = request.get_host()+request.get_full_path()
+    url = request.data.get('url',None)
+
+    if not url:
+        url = request.META['HTTP_REFERER']
     return JsonResponse({
         "signature":generate_jsapi_signature(timestamp,nonceStr,url)
     })

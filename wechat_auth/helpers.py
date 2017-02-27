@@ -104,7 +104,7 @@ def generate_jsapi_signature(timestamp,nonceStr,url):
     return WechatBasic().generate_jsapi_signature(timestamp,nonceStr,url,jt['jsapi_ticket'])
 # import time
 # jt = conf.get_jsapi_ticket()
-# print WechatBasic().generate_jsapi_signature(1482652615,"yinzishao","http://www.yinzishao.cn/testjs",jt['jsapi_ticket'])
+# print WechatBasic().generate_jsapi_signature(1482652615,"yinzishao","http://www.yinzishao.cn:8000/testjs",jt['jsapi_ticket'])
 # # sendTemplateMessage()
 dir = settings.BASE_DIR + '/api/static/'
 
