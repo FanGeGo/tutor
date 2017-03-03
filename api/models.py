@@ -296,3 +296,16 @@ class Feedback(models.Model):
     class Meta:
         managed = False
         db_table = 'feedback'
+
+
+class Locations(models.Model):
+    id = models.AutoField(primary_key=True)
+    wechat = models.ForeignKey(AuthUser, blank=True, null=True)
+    latitude = models.FloatField(db_column='latitude', blank=True, null=True)
+    longitude = models.FloatField(db_column='longitude', blank=True, null=True)
+    address = models.TextField(db_column='address', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'locations'
+

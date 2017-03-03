@@ -11,6 +11,7 @@ from api.bll.parent import *
 from api.bll.order import *
 from api.bll.message import *
 from api.bll.admin import *
+from api.bll.locations import *
 from rest_framework.decorators import api_view,authentication_classes
 from api.serializers import TeacherSerializer,ParentOrderSerializer,MessageSerializer,OrderApplySerializer
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from tutor.http import JsonResponse,JsonError
-from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config
+from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config,Locations
 from django.db import transaction
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from wechat_auth.helpers import generate_jsapi_signature
@@ -40,12 +41,22 @@ def loginSuc(request):
 @api_view(['GET'])
 @authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
 def getWechatInfo(request):
+    """
+    获取微信个人信息
+    :param request:
+    :return:
+    """
     return Response(request.session.get("info",None))
 
 @login_required()
 @api_view(['POST'])
 @authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
 def getText(request):
+    """
+    获取系统一些配置信息
+    :param request:
+    :return:
+    """
     key = request.data.get('key',None)
     result = {}
     try:
@@ -69,6 +80,11 @@ def getText(request):
 @api_view(['POST'])
 @authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
 def generate_signature(request):
+    """
+    生成jssdk所需的_signature
+    :param request:
+    :return:
+    """
     timestamp = request.data.get('timestamp',None)
     nonceStr = request.data.get('nonceStr',None)
     url = request.data.get('url',None)
@@ -78,3 +94,5 @@ def generate_signature(request):
     return JsonResponse({
         "signature":generate_jsapi_signature(timestamp,nonceStr,url)
     })
+
+
