@@ -11,6 +11,7 @@ class TeacherSerializer(serializers.ModelSerializer):
     parent_willing = serializers.IntegerField(read_only=True)   #读取家长列表时对应该教师的处理意愿
     teacher_willing = serializers.IntegerField(read_only=True)
     isInvited = serializers.CharField(read_only=True)
+    distance = serializers.FloatField(read_only=True)
 
 class ParentOrderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,6 +20,7 @@ class ParentOrderSerializer(serializers.ModelSerializer):
     parent_willing = serializers.IntegerField(read_only=True)   #读取家长列表时对应该教师的处理意愿
     teacher_willing = serializers.IntegerField(read_only=True)
     isInvited = serializers.CharField(read_only=True)
+    distance = serializers.FloatField(read_only=True)
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:

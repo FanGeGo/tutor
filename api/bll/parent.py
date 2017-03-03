@@ -12,7 +12,7 @@ from tutor.http import JsonResponse,JsonError
 from api.models import AuthUser,ParentOrder,OrderApply
 from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime, getParentResult
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
+from locations import getUserDistance
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return  # To not perform the csrf check previously happening
@@ -149,6 +149,14 @@ def getParentOrder(request):
     if len(teas) > 0 and not user.is_superuser:
         tea = teas[0]
         for po in parentOrders:
+            #计算距离
+            po.distance = getUserDistance(user,po.wechat)
+            #替换微信端的地址
+            po.address = ''
+            locations = po.wechat.locations_set.all()
+            if len(locations) > 0:
+                po.address = locations[0].address
+
             po.isInvited = ''
             #老师主动报名
             orderApply = OrderApply.objects.filter(pd=po,tea= tea)

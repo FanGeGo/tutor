@@ -95,4 +95,3 @@ def generate_signature(request):
         "signature":generate_jsapi_signature(timestamp,nonceStr,url)
     })
 
-

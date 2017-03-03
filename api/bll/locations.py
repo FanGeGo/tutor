@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from tutor.http import JsonResponse,JsonError
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Locations
 from django.db import transaction
-from wechat_auth.helpers import changeSingleBaseToImg, getTeacherResult, getParentResult,getAddress
+from wechat_auth.helpers import changeSingleBaseToImg, getTeacherResult, getParentResult,getAddress,distance
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -28,8 +28,8 @@ def setLocations(request):
     用户设置locations
     :param request:
         {
-            "longitude":39.984154,
-            "latitude":116.307490
+        "longitude":23.0580629881,
+        "latitude":113.3853235930
         }
     :return:
     """
@@ -65,3 +65,19 @@ def getUserAddress(request):
     latitude = float(request.data.get("latitude", -1))
     address = getAddress(longitude,latitude)
     return JsonResponse({'address':address})
+
+def getUserDistance(user1, user2):
+    """
+    获取两个用户之间的距离
+    :param user1:
+    :param user2:
+    :return:
+    """
+    l1 = user1.locations_set.all()
+    l2 = user2.locations_set.all()
+    if len(l1) and len(l2):
+        l1 = l1[0]
+        l2 = l2[0]
+        return distance(l1.latitude,l1.longitude,l2.latitude,l2.longitude)
+    else:
+        return 0

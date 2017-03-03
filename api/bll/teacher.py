@@ -14,7 +14,7 @@ from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config
 from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime,changeSingleBaseToImg,defaultChangeTeachShowPhoto, \
     getTeacherResult
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
+from locations import getUserDistance
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return  # To not perform the csrf check previously happening
@@ -196,6 +196,7 @@ def getTeachers(request):
         pd = pds[0]
          #获取到老师的数据，需要判断是不是报名或者被邀请
         for t in teachers:
+            t.distance = getUserDistance(user,t.wechat)
             t.isInvited = ''
             #家长主动
             orderApply = OrderApply.objects.filter(pd=pd,tea= t)
