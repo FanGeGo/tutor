@@ -30,6 +30,7 @@ def getTeacherInfo(request):
     """
     user = AuthUser.objects.get(username=request.user.username)
     format = None
+    result = {}
     if request.method == "GET":
         teacher = user.teacher_set.all()
         if len(teacher):

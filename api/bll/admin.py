@@ -12,10 +12,13 @@ from rest_framework.response import Response
 from tutor.http import JsonResponse,JsonError
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config,Feedback
 from django.db import transaction
+from django.shortcuts import redirect
+from django.http import HttpResponseRedirect
 from wechat_auth.helpers import changeSingleBaseToImg,getParentOrderObj,changeTime,getTeacherObj, getTeacherResult, \
     getParentResult
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAdminUser
+from django.contrib.auth import authenticate,login
 from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime,defaultChangeTeachShowPhoto
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -568,3 +571,17 @@ def handleUserOrder(request):
     except Exception,e:
         print 'traceback.print_exc():'; traceback.print_exc()
         return JsonError(e.message)
+
+@api_view(['POST'])
+def loginAdmin(request):
+    username = request.data.get('username',None)
+    password = request.data.get('password',None)
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        # the password verified for the user
+        if user.is_active:
+            login(request,user)
+            return JsonResponse()
+    else:
+        # the authentication system was unable to verify the username and password
+        return JsonError('The username and password were incorrect.')

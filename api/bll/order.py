@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from tutor.http import JsonResponse,JsonError
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message
 from django.db import transaction
-from wechat_auth.helpers import changeSingleBaseToImg, getTeacherResult, getParentResult
+from wechat_auth.helpers import changeSingleBaseToImg, getTeacherResult, getParentResult,sendTemplateMessage
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):

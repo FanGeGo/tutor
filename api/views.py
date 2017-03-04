@@ -22,7 +22,7 @@ from tutor.http import JsonResponse,JsonError
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config,Locations
 from django.db import transaction
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from wechat_auth.helpers import generate_jsapi_signature
+from wechat_auth.helpers import generate_jsapi_signature,sendTemplateMessage
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
@@ -94,4 +94,18 @@ def generate_signature(request):
     return JsonResponse({
         "signature":generate_jsapi_signature(timestamp,nonceStr,url)
     })
+
+@login_required()
+@api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+def uploadImgServerId(request):
+    """
+    上传微信端的serverId，然后下载照片存放在本地
+    :param request:
+    :return:
+    """
+    serverId = request.data.get('serverId',None)
+    print 'serverId ==================='
+    print serverId
+    return JsonResponse()
 

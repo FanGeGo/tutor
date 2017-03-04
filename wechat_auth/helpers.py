@@ -46,7 +46,8 @@ def set_jsapi_ticket_function(jsapi_ticket=None, jsapi_ticket_expires_at=None):
         f.seek(0)
         f.write(json.dumps(d))
         f.truncate()
-def sendTemplateMessage():
+
+def sendTemplateMessage(openid,redir_url,abstarct,name,telephone,date):
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
     openid = "odE4WwK3g05pesjOYGbwcbmOWTnc"

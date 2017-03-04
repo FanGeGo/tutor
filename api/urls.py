@@ -47,6 +47,8 @@ urlpatterns = [
     url(r'^generate_signature', csrf_exempt(views.generate_signature)),
     url(r'^setLocations', csrf_exempt(views.setLocations)),
     url(r'^getUserAddress', csrf_exempt(views.getUserAddress)),
+    url(r'^uploadImgServerId', csrf_exempt(views.uploadImgServerId)),
+    url(r'^loginAdmin', csrf_exempt(views.loginAdmin)),
 ]
 
 
