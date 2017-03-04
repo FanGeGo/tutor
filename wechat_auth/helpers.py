@@ -58,7 +58,6 @@ def sendTemplateMessage(openid="odE4WwK3g05pesjOYGbwcbmOWTnc",
                         date= "2016/12/22"):
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
-    openid = "odE4WwK3g05pesjOYGbwcbmOWTnc"
     template_id = "LUdCxE5cvGT1GI-NX8UpNFq1Ywde8H2VN_NV-AjpZCg"
     post_data = {
         "touser":openid,
