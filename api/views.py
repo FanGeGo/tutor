@@ -82,7 +82,7 @@ def getText(request):
 def generate_signature(request):
     """
     生成jssdk所需的_signature
-    :param request:
+    :param request: {"timestamp":"1482652615","nonceStr":"yinzishao","url":"http://www.yinzishao.cn/testjs"}
     :return:
     """
     timestamp = request.data.get('timestamp',None)

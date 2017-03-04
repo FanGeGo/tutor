@@ -74,13 +74,9 @@ def index(request):
                     'description': '家教平台',
                     'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/authorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect',
                 }, {
-                    'title': '百度',
+                    'title': '测试',
                     'picurl': 'http://doraemonext.oss-cn-hangzhou.aliyuncs.com/test/wechat-test.jpg',
                     'url': 'http://www.yinzishao.cn/testjs',
-                }, {
-                    'title': 'Django 教程',
-                    'picurl': 'http://www.ziqiangxuetang.com/media/uploads/images/django_logo_20140508_061519_35.jpg',
-                    'url': 'http://www.ziqiangxuetang.com/django/django-tutorial.html',
                 }
             ])
             return HttpResponse(response, content_type="application/xml")
