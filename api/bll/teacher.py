@@ -78,7 +78,6 @@ def createTeacher(request):
             temp = request.data.dict()  if (type(request.data) != type({})) else request.data
             changeObejct(temp)
             photos = temp.get('teach_show_photo',None)
-            print photos
             if photos and photos != "":
                 temp['teach_show_photo'] = changeBaseToImg(photos)
             certificate_photo = temp.get('certificate_photo',None)

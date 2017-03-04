@@ -37,7 +37,7 @@ def setLocations(request):
         longitude = float(request.data.get("longitude", -1))
         latitude = float(request.data.get("latitude", -1))
         user = AuthUser.objects.get(username=request.user.username)
-        address = getAddress(longitude,latitude)
+        address = getAddress(latitude,longitude)
         locations = user.locations_set.all()
         if len(locations) > 0:
             l=locations[0]
