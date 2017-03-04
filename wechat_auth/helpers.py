@@ -49,16 +49,17 @@ def set_jsapi_ticket_function(jsapi_ticket=None, jsapi_ticket_expires_at=None):
         f.write(json.dumps(d))
         f.truncate()
 
-def sendTemplateMessage(openid,redir_url,abstarct,name,telephone,date):
+def sendTemplateMessage(openid="odE4WwK3g05pesjOYGbwcbmOWTnc",
+                        redir_url="http://www.yinzishao.cn/login",
+                        abstarct="你的报名有最新消息！ＸＸ接受／拒绝了你的报名！",
+                        content= 'message_content',
+                        name= "黄先生",
+                        telephone= "1234567890",
+                        date= "2016/12/22"):
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
     openid = "odE4WwK3g05pesjOYGbwcbmOWTnc"
     template_id = "LUdCxE5cvGT1GI-NX8UpNFq1Ywde8H2VN_NV-AjpZCg"
-    redir_url = "http://www.yinzishao.cn/login"
-    abstarct = "你的报名有最新消息！ＸＸ接受／拒绝了你的报名！"
-    name = "黄先生"
-    telephone = "1234567890"
-    date = "2016/12/22"
     post_data = {
         "touser":openid,
         "template_id":template_id,
@@ -82,7 +83,7 @@ def sendTemplateMessage(openid,redir_url,abstarct,name,telephone,date):
                 "color":"#173177"
             },
             "keyword4":{
-                "value":"请查阅！",
+                "value":content,
                 "color":"#173177"
             },
             "remark":{

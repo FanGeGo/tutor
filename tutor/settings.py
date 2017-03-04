@@ -132,4 +132,4 @@ STATICFILES_FINDERS = (
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-
+DOMAIN = 'http://www.yinzishao.cn/'

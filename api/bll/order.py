@@ -14,7 +14,7 @@ from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message
 from django.db import transaction
 from wechat_auth.helpers import changeSingleBaseToImg, getTeacherResult, getParentResult,sendTemplateMessage
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-
+from django.conf import settings
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return  # To not perform the csrf check previously happening
@@ -81,6 +81,15 @@ def applyParent(request):
                                       message_title=message_title, message_content=message_content,
                                       status=0,update_time=now,create_time=now)
                     message.save()
+                    sendTemplateMessage(
+                        pd.wechat.username,
+                        settings.DOMAIN+'tutor_web/view/myList.html',
+                        message_title,
+                        message_content,
+                        teacher.name,
+                        teacher.tel,
+                        now
+                    )
                     #TODO:推送到微信端
 
             except Exception,e:
@@ -100,10 +109,19 @@ def applyParent(request):
                         message_content = teacher.name + u"取消了报名!"
                         now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
                         #新建消息
-                        message = Message(sender=user, receiver=teacher.wechat,
+                        message = Message(sender=user, receiver=pd.wechat,
                                           message_title=message_title, message_content=message_content,
                                           status=0,update_time=now,create_time=now)
                         message.save()
+                        sendTemplateMessage(
+                            pd.wechat.username,
+                            settings.DOMAIN+'tutor_web/view/myList.html',
+                            message_title,
+                            message_content,
+                            teacher.name,
+                            teacher.tel,
+                            now
+                        )
                     else:
                         return JsonError(u"找不到该订单")
                         #TODO:推送到微信端
@@ -173,7 +191,15 @@ def inviteTeacher(request):
                                       status=0,update_time=now,create_time=now)
                     message.save()
                     #TODO:推送到微信端
-
+                    sendTemplateMessage(
+                        teacher.wechat.username,
+                        settings.DOMAIN+'tutor_web/view/myList.html',
+                        message_title,
+                        message_content,
+                        parentorder.name,
+                        parentorder.tel,
+                        now
+                    )
             except Exception,e:
                 return JsonError(e.message)
             return JsonResponse()
@@ -194,6 +220,15 @@ def inviteTeacher(request):
                                           message_content=message_content,status=0,update_time=now,create_time=now)
                         message.save()
                         #TODO:推送到微信端
+                        sendTemplateMessage(
+                            teacher.wechat.username,
+                            settings.DOMAIN+'tutor_web/view/myList.html',
+                            message_title,
+                            message_content,
+                            parentorder.name,
+                            parentorder.tel,
+                            now
+                        )
                     else:
                         return JsonError(u"找不到订单！")
             except Exception,e:
@@ -288,6 +323,15 @@ def handleOrder(request):
                             order.update_time = timezone.now()
                             order.save()
                         #TODO:消息推送到微信端
+                            sendTemplateMessage(
+                                tea.wechat.username,
+                                settings.DOMAIN+'tutor_web/view/myList.html',
+                                message_title,
+                                message_content,
+                                pd.name,
+                                pd.tel,
+                                now
+                            )
                     except Exception,e:
                         return JsonError(e.message)
                     return JsonResponse()
@@ -336,11 +380,20 @@ def handleOrder(request):
                             message.save()
                             order.update_time = timezone.now()
                             order.save()
+                            sendTemplateMessage(
+                                pd.wechat.username,
+                                settings.DOMAIN+'tutor_web/view/myList.html',
+                                message_title,
+                                message_content,
+                                tea.name,
+                                tea.tel,
+                                now
+                            )
                         #消息推送到微信端
                     except Exception,e:
                         return JsonError(e.message)
                     return JsonResponse(result)
-                    #TODO:消息推送到微信端
+
                 else:
                     return JsonError(u"处理错误，请确定数据无误！")
             else:
