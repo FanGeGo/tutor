@@ -12,16 +12,16 @@ var vm = new Vue({
   	   status: false,
   	   text: '',
   	},
-    config:{
-      width: 100,
-      height:100,
-      quality: 0.9
-    },
-    config1:{
-      width:80,
-      height: 80,
-      quality: 0.9
-    },
+    // config:{
+    //   width: 100,
+    //   height:100,
+    //   quality: 0.9
+    // },
+    // config1:{
+    //   width:80,
+    //   height: 80,
+    //   quality: 0.9
+    // },
   	status:{
   	   isSubmit: false,
        isLoading: false,
@@ -29,8 +29,10 @@ var vm = new Vue({
        isPrice: false,
        isNotice: false,
        isSelected: true,
-       // getLocation: true
+       // getLocation: true,
+
   	},
+    confirmImg: '',
     salary: '',
     notice: '',
     Arr: {
@@ -436,12 +438,13 @@ var vm = new Vue({
       location.href = 'teacherPage.html';
     },
     uploadImg: function(index){
-      var img = this.images;
+      var img = this.images,showImg;
       if(index == 'certificate_photo'){
-         img = img.certificate_photo;
+         showImg = img.certificate_photo;
       }else{
-        img = img.teach_show_photo[index].img;
+        showImg = img.teach_show_photo[index].img;
       }
+      var self = this;
       wx.chooseImage({
         count: 1, // 默认9
         sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
@@ -449,9 +452,9 @@ var vm = new Vue({
         success: function (res) {
           console.log(res);
           var localId = res.localIds[0]; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
-          img = localId;
-          alert(img);
-          this.uploadImgTo(localId,index);
+          alert(self.confirmImg);
+          self.confirmImg = localId;
+          self.uploadImgTo(localId,index);
         }
       });
     },
@@ -527,7 +530,7 @@ var vm = new Vue({
               self.location.longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
               // self.form.speed = res.speed; // 速度，以米/每秒计
               // self.form.accuracy = res.accuracy; // 位置精度
-              this.onAllow();
+              self.onAllow();
               alert("latitude : "+self.location.latitude+"--longitude : "+self.location.longitude+"--speed : ");
             },
             cancel: function(res){
@@ -546,7 +549,7 @@ var vm = new Vue({
         }
       }).then(function(res){
         if(res.json().success == 1){
-          this.status.getLocation = false;
+          // this.status.getLocation = false;
         }
       })
     },

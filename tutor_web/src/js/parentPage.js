@@ -73,6 +73,9 @@
 		              		for(var j=0;j<len;j++){
 	                           teach_photo[j]=this.domain+teach_photo[j];
 		              		}
+		              		if(data[i].distance!==0){
+		              			data[i].distance = data[i].distance.toFixed(2);
+		              		}
 		              		if(data[i].isInvited == '您已拒绝'||data[i].isInvited == '老师已拒绝'){
 			          	   		data[i].isRed = true;
 			          	   	}else{
@@ -124,6 +127,7 @@
 	                jsApiList: ['getLocation','openLocation'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
 	              });
 	              this.onAllow();
+	              // this.status.getLocation = true;
 	            }else{
 	              console.log(res.json().error);
 	            }
@@ -131,14 +135,14 @@
 	          })                
 	        },
 	        sendLocation: function(){
-	          this.$http.post(this.domain+'/setLocations',this.form,{
+	          this.$http.post(this.domain+'/setLocations',this.location,{
 	            crossOrigin: true,
 	            headers:{
 	              'Content-Type':'application/json' 
 	            }
 	          }).then(function(res){
 	            if(res.json().success == 1){
-	              this.status.getLocation = false;
+	              // this.status.getLocation = false;
 	            }
 	          })
 	        },
@@ -158,13 +162,10 @@
 	              self.location.longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
 	              // self.form.speed = res.speed; // 速度，以米/每秒计
 	              // self.form.accuracy = res.accuracy; // 位置精度
-	              this.sendLocation();
+	              self.sendLocation();
 	              console.log("latitude : "+self.location.latitude+"--longitude : "+self.location.longitude);
 	            },
-	            cancel: function(res){
-	              alert("用户拒绝授权获取地理位置");
-	              this.onSubmitQuestion('createParentOrder');
-	            }
+	            
 	          });
 	          
 	        },
