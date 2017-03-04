@@ -2,6 +2,8 @@
 # -*- coding:utf-8 -*-
 import traceback
 
+import requests
+
 __author__ = 'youmi'
 
 from wechat_sdk import WechatConf
@@ -123,22 +125,19 @@ def changeBaseToImg(data):
     return ','.join(result)
 
 def changeSingleBaseToImg(pic_data):
-    p = r"image/(.*?);base64,(.*)"
-    r = re.search(p,pic_data)
-    if r:
-        type = r.group(1)
-        base64Data = r.group(2)
-        name = str(int(time.time() * 1000000)) + '.' + type
-        path = dir+name
-        with open(path, "wb") as fh:
-            fh.write(base64.decodestring(base64Data))
-        return '/static/' + name
-    else:
-        try:
-            idx = pic_data.index("static")
-            return pic_data[idx-1:]
-        except :
-            return ''
+    """
+    serverId下载单个照片
+    :param pic_data: 可能是serverId 或者是文件路径
+    :return:
+    """
+    if pic_data == '':
+        return ''
+    try:
+        pic_data.index("static")
+        return pic_data
+    except Exception,e:
+        return downloadImg(pic_data)
+
 def changeObejct(obj):
     """
     兼容接受到的对象
@@ -567,3 +566,14 @@ def distance(lat1,lng1,lat2,lng2):
         return -s
     else:
         return s
+
+def downloadImg(serverId):
+    token = conf.get_access_token()['access_token']
+    url = 'http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=' + token +'&media_id=' + serverId
+    res = requests.get(url)
+    data = res.content
+    name = str(int(time.time() * 1000000)) + '.jpg'
+    path = dir+name
+    with open(path, "wb") as fh:
+        fh.write(data)
+    return '/static/' + name

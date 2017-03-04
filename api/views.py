@@ -22,7 +22,9 @@ from tutor.http import JsonResponse,JsonError
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config,Locations
 from django.db import transaction
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from wechat_auth.helpers import generate_jsapi_signature,sendTemplateMessage
+from wechat_auth.helpers import generate_jsapi_signature,sendTemplateMessage, downloadImg
+
+
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
     def enforce_csrf(self, request):
@@ -105,6 +107,7 @@ def uploadImgServerId(request):
     :return:
     """
     serverId = request.data.get('serverId',None)
+    print downloadImg(serverId)
     print 'serverId ==================='
     print serverId
     return JsonResponse()
