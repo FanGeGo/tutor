@@ -66,7 +66,7 @@ def index(request):
         # last_text = context.get('last_text')  # 上次对话内容
         content = message.content.strip()  # 当前会话内容
 
-        if message.content == '新闻':
+        if message.content == '家教':
             response = wechat_instance.response_news([
                 {
                     'title': '家教平台',
