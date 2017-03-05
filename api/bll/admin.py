@@ -599,10 +599,13 @@ def checkWechat(request):
     """
     user = AuthUser.objects.get(username=request.user.username)
     if user.first_name == '':
+        return JsonResponse({"success":3})
         return JsonResponse(u'没有绑定微信')
     elif request.session['info']['openid'] != user.first_name:
+        return JsonResponse({"success":2})
         return JsonResponse(u'管理员绑定微信账号跟您登录的账号不符，是否重新绑定')
     else:
+        return JsonResponse({"success":1})
         return JsonResponse(u'登录跟绑定一致')
 
 @login_required()
