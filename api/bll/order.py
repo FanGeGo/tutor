@@ -82,7 +82,7 @@ def applyParent(request):
                                       status=0,update_time=now,create_time=now)
                     message.save()
                     sendTemplateMessage(
-                        pd.wechat.username,
+                        pd,
                         settings.DOMAIN+'tutor_web/view/myList.html',
                         message_title,
                         message_content,
@@ -113,7 +113,7 @@ def applyParent(request):
                                           status=0,update_time=now,create_time=now)
                         message.save()
                         sendTemplateMessage(
-                            pd.wechat.username,
+                            pd,
                             settings.DOMAIN+'tutor_web/view/myList.html',
                             message_title,
                             message_content,
@@ -190,7 +190,7 @@ def inviteTeacher(request):
                     message.save()
                     #TODO:推送到微信端
                     sendTemplateMessage(
-                        teacher.wechat.username,
+                        teacher,
                         settings.DOMAIN+'tutor_web/view/myList.html',
                         message_title,
                         message_content,
@@ -218,7 +218,7 @@ def inviteTeacher(request):
                         message.save()
                         #TODO:推送到微信端
                         sendTemplateMessage(
-                            teacher.wechat.username,
+                            teacher,
                             settings.DOMAIN+'tutor_web/view/myList.html',
                             message_title,
                             message_content,
@@ -320,7 +320,7 @@ def handleOrder(request):
                             order.save()
                         #TODO:消息推送到微信端
                             sendTemplateMessage(
-                                tea.wechat.username,
+                                tea,
                                 settings.DOMAIN+'tutor_web/view/myList.html',
                                 message_title,
                                 message_content,
@@ -376,7 +376,7 @@ def handleOrder(request):
                             order.update_time = timezone.now()
                             order.save()
                             sendTemplateMessage(
-                                pd.wechat.username,
+                                pd,
                                 settings.DOMAIN+'tutor_web/view/myList.html',
                                 message_title,
                                 message_content,

@@ -49,12 +49,21 @@ def set_jsapi_ticket_function(jsapi_ticket=None, jsapi_ticket_expires_at=None):
         f.write(json.dumps(d))
         f.truncate()
 
-def sendTemplateMessage(openid="odE4WwK3g05pesjOYGbwcbmOWTnc",
+def sendTemplateMessage(receiver="odE4WwK3g05pesjOYGbwcbmOWTnc",
                         redir_url="http://www.yinzishao.cn/login",
                         abstarct="你的报名有最新消息！ＸＸ接受／拒绝了你的报名！",
                         content= 'message_content',
                         name= "黄先生",
                         date= "2016/12/22"):
+    #获取用户，判断是否是管理员，如果是管理员则first_name是openId
+    user = receiver.wechat
+    if user.is_superuser:
+        openid = user.first_name
+        remark = "管理员的消息通知"
+        redir_url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/adminAuthorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect"
+    else:
+        openid = user.username
+        remark = "谢谢关注家教平台"
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
     template_id = "LUdCxE5cvGT1GI-NX8UpNFq1Ywde8H2VN_NV-AjpZCg"
@@ -85,7 +94,7 @@ def sendTemplateMessage(openid="odE4WwK3g05pesjOYGbwcbmOWTnc",
                 "color":"#173177"
             },
             "remark":{
-                "value":"谢谢关注家教平台",
+                "value":remark,
                 "color":"#173177"
             }
         }

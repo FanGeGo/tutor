@@ -76,7 +76,7 @@ def index(request):
                 }, {
                     'title': '管理后台',
                     'picurl': 'http://doraemonext.oss-cn-hangzhou.aliyuncs.com/test/wechat-test.jpg',
-                    'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/authorizationAdmin&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect',
+                    'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/adminAuthorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect',
                 }
             ])
             return HttpResponse(response, content_type="application/xml")
@@ -226,7 +226,7 @@ def login_admin(request):
 def testJs(request):
     return render(request, 'testjs.html')
 
-def authorizationAdmin(request):
+def adminAuthorization(request):
     """
     获取用户信息，登录,跳转
     :param request:
