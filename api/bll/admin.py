@@ -573,6 +573,7 @@ def handleUserOrder(request):
         return JsonError(e.message)
 
 @api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
 def loginAdmin(request):
     username = request.data.get('username',None)
     password = request.data.get('password',None)
