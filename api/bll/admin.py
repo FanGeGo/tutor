@@ -585,3 +585,36 @@ def loginAdmin(request):
     else:
         # the authentication system was unable to verify the username and password
         return JsonError('The username and password were incorrect.')
+
+@login_required()
+@api_view(['GET'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+@permission_classes((IsAdminUser,))
+def checkWechat(request):
+    """
+    检查绑定的微信账号
+    :param request:
+    :return:
+    """
+    user = AuthUser.objects.get(username=request.user.username)
+    if user.first_name == '':
+        return JsonResponse(u'没有绑定微信')
+    elif request.session['info']['openid'] != user.first_name:
+        return JsonResponse(u'管理员绑定微信账号跟您登录的账号不符，是否重新绑定')
+    else:
+        return JsonResponse(u'登录跟绑定一致')
+
+@login_required()
+@api_view(['GET'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+@permission_classes((IsAdminUser,))
+def setWechat(request):
+    """
+    绑定微信号
+    :param request:
+    :return:
+    """
+    user = AuthUser.objects.get(username=request.user.username)
+    user.first_name = request.session['info']['openid']
+    user.save()
+    return JsonResponse()

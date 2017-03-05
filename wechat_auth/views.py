@@ -74,9 +74,9 @@ def index(request):
                     'description': '家教平台',
                     'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/authorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect',
                 }, {
-                    'title': '测试',
+                    'title': '管理后台',
                     'picurl': 'http://doraemonext.oss-cn-hangzhou.aliyuncs.com/test/wechat-test.jpg',
-                    'url': 'http://www.yinzishao.cn/testjs',
+                    'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/authorizationAdmin&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect',
                 }
             ])
             return HttpResponse(response, content_type="application/xml")
@@ -225,3 +225,19 @@ def login_admin(request):
 
 def testJs(request):
     return render(request, 'testjs.html')
+
+def authorizationAdmin(request):
+    """
+    获取用户信息，登录,跳转
+    :param request:
+    :return:
+    """
+    code = request.GET.get('code')
+    api = WeixinAPI(appid=APP_ID,
+	    app_secret=APP_SECRET,
+	    redirect_uri=REDIRECT_URI)
+    auth_info = api.exchange_code_for_access_token(code=code)
+    api = WeixinAPI(access_token=auth_info['access_token'])
+    resp = api.user(openid=auth_info['openid'])
+    request.session['info'] = resp
+    return redirect('http://www.yinzishao.cn/administor/view/index.html')

@@ -49,6 +49,8 @@ urlpatterns = [
     url(r'^getUserAddress', csrf_exempt(views.getUserAddress)),
     url(r'^uploadImgServerId', csrf_exempt(views.uploadImgServerId)),
     url(r'^loginAdmin', csrf_exempt(views.loginAdmin)),
+    url(r'^checkWechat', csrf_exempt(views.checkWechat)),
+    url(r'^setWechat', csrf_exempt(views.setWechat)),
 ]
 
 

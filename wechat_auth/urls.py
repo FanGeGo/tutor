@@ -10,6 +10,7 @@ urlpatterns = [
     # url(r'^loginSuc', views.loginSuc),
     url(r'^authorization', views.authorization),
     url(r'^testjs', views.testJs),
+    url(r'^authorizationAdmin', views.authorizationAdmin),
 ]
 
 import os
