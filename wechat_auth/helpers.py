@@ -54,7 +54,6 @@ def sendTemplateMessage(openid="odE4WwK3g05pesjOYGbwcbmOWTnc",
                         abstarct="你的报名有最新消息！ＸＸ接受／拒绝了你的报名！",
                         content= 'message_content',
                         name= "黄先生",
-                        telephone= "1234567890",
                         date= "2016/12/22"):
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
@@ -74,7 +73,7 @@ def sendTemplateMessage(openid="odE4WwK3g05pesjOYGbwcbmOWTnc",
                 "color":"#173177"
             },
             "keyword2": {
-                "value":telephone,
+                "value":'',
                 "color":"#173177"
             },
             "keyword3":{

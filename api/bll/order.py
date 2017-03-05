@@ -87,7 +87,6 @@ def applyParent(request):
                         message_title,
                         message_content,
                         teacher.name,
-                        teacher.tel,
                         now
                     )
                     #TODO:推送到微信端
@@ -119,7 +118,6 @@ def applyParent(request):
                             message_title,
                             message_content,
                             teacher.name,
-                            teacher.tel,
                             now
                         )
                     else:
@@ -197,7 +195,6 @@ def inviteTeacher(request):
                         message_title,
                         message_content,
                         parentorder.name,
-                        parentorder.tel,
                         now
                     )
             except Exception,e:
@@ -226,7 +223,6 @@ def inviteTeacher(request):
                             message_title,
                             message_content,
                             parentorder.name,
-                            parentorder.tel,
                             now
                         )
                     else:
@@ -329,7 +325,6 @@ def handleOrder(request):
                                 message_title,
                                 message_content,
                                 pd.name,
-                                pd.tel,
                                 now
                             )
                     except Exception,e:
@@ -386,7 +381,6 @@ def handleOrder(request):
                                 message_title,
                                 message_content,
                                 tea.name,
-                                tea.tel,
                                 now
                             )
                         #消息推送到微信端
