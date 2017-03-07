@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import traceback
-
-import requests
-
-__author__ = 'youmi'
-
 from wechat_sdk import WechatConf
 from wechat_sdk import WechatBasic
+import requests
 import json
 from django.conf import settings
+TOKEN=settings.TOKEN
+APP_ID=settings.APP_ID
+APP_SECRET=settings.APP_SECRET
+DOMAIN=settings.DOMAIN
+TEMPLATE_ID=settings.TEMPLATE_ID
+ADDRESS_KEY=settings.ADDRESS_KEY
+
+__author__ = 'yinzishao'
+
+admin_url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + APP_ID + '&redirect_uri='+DOMAIN+'adminAuthorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect'
+
 
 week = ["mon_begin","mon_end","tues_begin","tues_end",
             "wed_begin","wed_end","thur_begin","thur_end","fri_begin","fri_end"]
@@ -60,16 +67,16 @@ def sendTemplateMessage(receiver="odE4WwK3g05pesjOYGbwcbmOWTnc",
     if user.is_superuser:
         openid = user.first_name
         remark = "管理员的消息通知"
-        redir_url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/adminAuthorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect"
+        redir_url = admin_url
     else:
         openid = user.username
         remark = "谢谢关注家教平台"
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
-    template_id = "LUdCxE5cvGT1GI-NX8UpNFq1Ywde8H2VN_NV-AjpZCg"
+    TEMPLATE_ID = "LUdCxE5cvGT1GI-NX8UpNFq1Ywde8H2VN_NV-AjpZCg"
     post_data = {
         "touser":openid,
-        "template_id":template_id,
+        "template_id":TEMPLATE_ID,
         "url":redir_url,
         "topcolor":"#FF0000",
         "data":{
@@ -103,9 +110,9 @@ def sendTemplateMessage(receiver="odE4WwK3g05pesjOYGbwcbmOWTnc",
     requests.post(url,json=post_data)
 
 conf = WechatConf(
-    token='yinzishao',
-    appid='wx6fe7f0568b75d925',
-    appsecret='bb5550ec25cfdd716dcf8202ffe03eeb',
+    token=TOKEN,
+    appid=APP_ID,
+    appsecret=APP_SECRET,
     access_token_getfunc=get_access_token_function,
     access_token_setfunc=set_access_token_function,
     jsapi_ticket_getfunc=get_jsapi_ticket_function,
@@ -537,8 +544,7 @@ def getAddress(latitude,longitude):
     根据经纬度获取位置信息
     :return:
     """
-    key = 'KN5BZ-WXX6G-P2CQ6-II5X4-Q3G65-XMF7C'
-    url = 'http://apis.map.qq.com/ws/geocoder/v1/?location=' + str(latitude) +','+ str(longitude) +'&key='+key
+    url = 'http://apis.map.qq.com/ws/geocoder/v1/?location=' + str(latitude) +','+ str(longitude) +'&key='+ADDRESS_KEY
     import requests
     try:
         res = requests.get(url)

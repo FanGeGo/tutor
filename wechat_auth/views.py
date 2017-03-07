@@ -11,20 +11,25 @@ from wechat_sdk.messages import (TextMessage, VoiceMessage, ImageMessage,
     VideoMessage, LinkMessage, LocationMessage, EventMessage
 )
 from wechat_sdk.context.framework.django import DatabaseContextStore
-
+from django.conf import settings
 from api.models import AuthUser
 
-APP_ID = "wx6fe7f0568b75d925"
-APP_SECRET = "bb5550ec25cfdd716dcf8202ffe03eeb"
-TOKEN = "yinzishao"
-REDIRECT_URI = "http://www.yinzishao.cn/authorization"
+TOKEN=settings.TOKEN
+APP_ID=settings.APP_ID
+APP_SECRET=settings.APP_SECRET
+DOMAIN=settings.DOMAIN
+
 # 实例化 WechatBasic
 wechat_instance = WechatBasic(
-    token='yinzishao',
-    appid='wx6fe7f0568b75d925',
-    appsecret='bb5550ec25cfdd716dcf8202ffe03eeb'
+    token=TOKEN,
+    appid=APP_ID,
+    appsecret=APP_SECRET
 )
 
+index_url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + APP_ID + '&redirect_uri='+DOMAIN+'authorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect'
+index_pic = 'http://www.ziqiangxuetang.com/static/images/newlogo.png'
+admin_url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + APP_ID + '&redirect_uri='+DOMAIN+'adminAuthorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect'
+admin_pic = 'http://doraemonext.oss-cn-hangzhou.aliyuncs.com/test/wechat-test.jpg'
 
 @csrf_exempt
 def index(request):
@@ -70,13 +75,13 @@ def index(request):
             response = wechat_instance.response_news([
                 {
                     'title': '家教平台',
-                    'picurl': 'http://www.ziqiangxuetang.com/static/images/newlogo.png',
+                    'picurl': index_pic,
                     'description': '家教平台',
-                    'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/authorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect',
+                    'url': index_url,
                 }, {
                     'title': '管理后台',
-                    'picurl': 'http://doraemonext.oss-cn-hangzhou.aliyuncs.com/test/wechat-test.jpg',
-                    'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/adminAuthorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect',
+                    'picurl': admin_pic,
+                    'url': admin_url,
                 }
             ])
             return HttpResponse(response, content_type="application/xml")
@@ -133,25 +138,14 @@ def authorization(request):
     https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx6fe7f0568b75d925&redirect_uri=http://www.yinzishao.cn/authorization&response_type=code&scope=snsapi_userinfo&state=STATE&connect_redirect=1#wechat_redirect
     """
     code = request.GET.get('code')
+    auth_redirect_uri = DOMAIN + "authorization"
     api = WeixinAPI(appid=APP_ID,
 	    app_secret=APP_SECRET,
-	    redirect_uri=REDIRECT_URI)
+	    redirect_uri=auth_redirect_uri)
     auth_info = api.exchange_code_for_access_token(code=code)
     api = WeixinAPI(access_token=auth_info['access_token'])
     resp = api.user(openid=auth_info['openid'])
     request.session['info'] = resp
-    """
-    {   'province': 'Guangdong',
-        'openid': 'odE4WwK3g05pesjOYGbwcbmOWTnc',
-        'headimgurl': 'http://wx.qlogo.cn/mmopen/fR41VbicrntibxhNY3WfaKgHBTbe1d6Gz0tPjhHpicwJerJiaAictfHiaLiaqCcVIs5EKOzsD4yaiadyUIUHK2Lu07K9EqArtialVJd4b/0',
-        'language': 'zh_CN',
-        'city': 'Yunfu',
-        'country': 'CN',
-        'sex': 1,
-        'privilege': [],
-        'nickname': u'\u5c39\u5b50\u52fa'
-    }
-    """
     openid = resp['openid']
 
     try:
@@ -171,14 +165,14 @@ def authorization(request):
     parent =  user.parentorder_set.all()
     if not len(teacher) and not len(parent):
         #都不存在，返回填问卷界面
-        redirect_uri='http://www.yinzishao.cn/tutor_web/view/index.html'
+        redirect_uri= DOMAIN + 'tutor_web/view/index.html'
 
     else:
         if len(teacher):
             #已填问卷返回，主页
-            redirect_uri='http://www.yinzishao.cn/tutor_web/view/teacherPage.html'
+            redirect_uri=DOMAIN + 'tutor_web/view/teacherPage.html'
         elif len(parent):
-            redirect_uri='http://www.yinzishao.cn/tutor_web/view/parentPage.html'
+            redirect_uri=DOMAIN + 'tutor_web/view/parentPage.html'
     return redirect(redirect_uri)
 @csrf_exempt
 def login_from_pwd(request, id=2):
@@ -232,12 +226,13 @@ def adminAuthorization(request):
     :param request:
     :return:
     """
+    auth_redirect_uri = DOMAIN + "adminAuthorization"
     code = request.GET.get('code')
     api = WeixinAPI(appid=APP_ID,
 	    app_secret=APP_SECRET,
-	    redirect_uri=REDIRECT_URI)
+	    redirect_uri=auth_redirect_uri)
     auth_info = api.exchange_code_for_access_token(code=code)
     api = WeixinAPI(access_token=auth_info['access_token'])
     resp = api.user(openid=auth_info['openid'])
     request.session['info'] = resp
-    return redirect('http://www.yinzishao.cn/administor/view/index.html')
+    return redirect(DOMAIN + 'administor/view/index.html')
