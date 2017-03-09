@@ -3,6 +3,7 @@
 __author__ = 'youmi'
 from django.conf.urls import url
 from wechat_auth import views
+from django.http import HttpResponse
 urlpatterns = [
     url(r'^index', views.index),
     url(r'^login_from_pwd/(?P<id>.*?$)', views.login_from_pwd),
@@ -11,6 +12,7 @@ urlpatterns = [
     url(r'^authorization', views.authorization),
     url(r'^testjs', views.testJs),
     url(r'^adminAuthorization', views.adminAuthorization),
+    url(r'^MP_verify_tB4oB6evMCzKRVvk\.txt$', lambda r: HttpResponse("tB4oB6evMCzKRVvk", content_type="text/plain")),
 ]
 
 import os
