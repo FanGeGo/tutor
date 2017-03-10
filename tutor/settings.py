@@ -132,7 +132,7 @@ STATICFILES_FINDERS = (
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-DOMAIN = 'http://www.yinzishao.cn/'
+DOMAIN = 'http://shaozi.beansonbar.cn/'
 
 APP_ID = "wx7a327445ac3309b4"
 APP_SECRET = "851b7659aefbe4f4dca9028eda674e3a"
