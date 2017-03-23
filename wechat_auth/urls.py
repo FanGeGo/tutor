@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^index', views.index),
     url(r'^login_from_pwd/(?P<id>.*?$)', views.login_from_pwd),
     url(r'^login_admin', views.login_admin),
+    url(r'^testSendTemplate', views.testSendTemplate),
     # url(r'^loginSuc', views.loginSuc),
     url(r'^authorization', views.authorization),
     url(r'^testjs', views.testJs),

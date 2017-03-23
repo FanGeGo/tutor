@@ -56,10 +56,10 @@ def set_jsapi_ticket_function(jsapi_ticket=None, jsapi_ticket_expires_at=None):
         f.write(json.dumps(d))
         f.truncate()
 
-def sendTemplateMessage(receiver="odE4WwK3g05pesjOYGbwcbmOWTnc",
+def sendTemplateMessage(receiver="ome9MwM_cPklUu-VZzA-QWW6FCC4",
                         redir_url="http://www.yinzishao.cn/login",
                         abstarct="你的报名有最新消息！ＸＸ接受／拒绝了你的报名！",
-                        content= 'message_content',
+                        content= '谢谢关注家教平台',
                         name= "黄先生",
                         date= "2016/12/22"):
     #获取用户，判断是否是管理员，如果是管理员则first_name是openId
@@ -73,7 +73,6 @@ def sendTemplateMessage(receiver="odE4WwK3g05pesjOYGbwcbmOWTnc",
         remark = "谢谢关注家教平台"
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
-    TEMPLATE_ID = "LUdCxE5cvGT1GI-NX8UpNFq1Ywde8H2VN_NV-AjpZCg"
     post_data = {
         "touser":openid,
         "template_id":TEMPLATE_ID,

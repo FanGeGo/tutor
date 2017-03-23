@@ -236,3 +236,8 @@ def adminAuthorization(request):
     resp = api.user(openid=auth_info['openid'])
     request.session['info'] = resp
     return redirect(DOMAIN + 'administor/view/index.html')
+
+def testSendTemplate(request):
+    from helpers import sendTemplateMessage
+    sendTemplateMessage()
+    return HttpResponse()
