@@ -101,7 +101,7 @@ def sendTemplateMessage(receiver="odE4WwK3g05pesjOYGbwcbmOWTnc",
                 "color":"#173177"
             },
             "remark":{
-                "value":remark,
+                "value":content,
                 "color":"#173177"
             }
         }
