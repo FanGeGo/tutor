@@ -177,7 +177,7 @@ def getTeachers(request):
     #根据最新最热排序,两个参数是最热门和最新，默认为最热门（参数为1），然后是最新（参数为2）
     hot = request.data.get("hot",1)
     where = []
-    filter = {}
+    filter = {"pass_not":2}
     order = ['-hot_not','-update_time']
     if hot == 2:
         order = ['-update_time']

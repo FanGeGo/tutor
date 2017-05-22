@@ -140,7 +140,7 @@ def getParentOrder(request):
     size = int(request.data.get("size",0))
     start = int(request.data.get("start",0)) * size
     keyword = request.data.get("keyword", '')
-    filter = {}
+    filter = {"pass_not":2}
     if keyword and keyword != '':
         filter["name__contains"] = keyword
     user = AuthUser.objects.get(username=request.user.username)
