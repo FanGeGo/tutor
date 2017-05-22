@@ -15,11 +15,12 @@ from django.db import transaction
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from wechat_auth.helpers import changeSingleBaseToImg,getParentOrderObj,changeTime,getTeacherObj, getTeacherResult, \
-    getParentResult
+    getParentResult,sendTemplateMessage
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import authenticate,login
 from wechat_auth.helpers import changeBaseToImg,changeObejct,getParentOrderObj,getTeacherObj,changeTime,defaultChangeTeachShowPhoto
+from django.conf import settings
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
         return  # To not perform the csrf check previously happening
@@ -428,6 +429,14 @@ def remindFeedBack(request):
         message = Message(sender=user, receiver=obj.wechat, message_title=message_title,
                           message_content=message_content,status=0,update_time=now,create_time=now)
         message.save()
+        sendTemplateMessage(
+            obj,
+            settings.DOMAIN+'tutor_web/view/myMessage.html',
+            message_title,
+            message_content,
+            "好学吧家教平台",
+            now
+        )
         return JsonResponse()
     else:
         return JsonError(u"找不到用户！")
