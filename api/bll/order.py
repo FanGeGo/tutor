@@ -83,7 +83,7 @@ def applyParent(request):
                     message.save()
                     sendTemplateMessage(
                         pd,
-                        settings.DOMAIN+'tutor_web/view/myList.html',
+                        settings.DOMAIN+'tutor_web/view/myTeacher.html',
                         message_title,
                         message_content,
                         teacher.name,
@@ -114,7 +114,7 @@ def applyParent(request):
                         message.save()
                         sendTemplateMessage(
                             pd,
-                            settings.DOMAIN+'tutor_web/view/myList.html',
+                            settings.DOMAIN+'tutor_web/view/myTeacher.html',
                             message_title,
                             message_content,
                             teacher.name,
@@ -265,6 +265,8 @@ def getOrder(request):
         for oa in oas:
             oa.name= oa.tea.name
             oa.result = getTeacherResult(oa)
+        #家长端“我的老师”列表只显示通过审核的老师，不会显示正在审核的老师
+        oas = [ i for i in oas if i.result != u"管理员审核中"]
         return Response(OrderApplySerializer(oas,many=True).data)
     else:
         return JsonResponse([])
@@ -377,7 +379,7 @@ def handleOrder(request):
                             order.save()
                             sendTemplateMessage(
                                 pd,
-                                settings.DOMAIN+'tutor_web/view/myList.html',
+                                settings.DOMAIN+'tutor_web/view/myTeacher.html',
                                 message_title,
                                 message_content,
                                 tea.name,
