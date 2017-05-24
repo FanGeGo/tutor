@@ -45,7 +45,8 @@ def applyParent(request):
     teachers = user.teacher_set.all()
     #查找家长订单
     pds = ParentOrder.objects.filter(pd_id=pd_id)
-    if len(pds) and len(teachers):
+    #未审核的老师不能报名
+    if len(pds) and len(teachers) and teachers[0].pass_not == 2:
         teacher = teachers[0]
         pd = pds[0]
         if method == 1:
@@ -150,7 +151,8 @@ def inviteTeacher(request):
     user = AuthUser.objects.get(username=request.user.username)
     parentorders = user.parentorder_set.all()   #查找家长订单
     teachers = Teacher.objects.filter(tea_id=tea_id)    #查找教师
-    if len(parentorders) and len(teachers):
+    #未审核的家长不能邀请老师
+    if len(parentorders) and len(teachers) and parentorders[0].pass_not ==2:
         parentorder = parentorders[0]
         teacher = teachers[0]
         if method == 1 :
