@@ -230,22 +230,77 @@ def setPass(request):
     id = request.data.get('id',None)
     method = request.data.get('type',None)
     userType = request.data.get('user',None)
-    if userType == "parent":
-        if method:
-            resNum = ParentOrder.objects.filter(pd_id = id).update(pass_not=2)
-        else:
-            resNum = ParentOrder.objects.filter(pd_id = id).update(pass_not=0)
-    elif userType == "teacher":
+    now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+    try:
+        if userType == "parent":
+            pd = ParentOrder.objects.get(pd_id = id)
+            if method:
+                # resNum = ParentOrder.objects.filter(pd_id = id).update(pass_not=2)
 
-        #TODO:消息通知？
-        if method:
-            resNum = Teacher.objects.filter(tea_id = id).update(pass_not=2)
-        else:
-            resNum = Teacher.objects.filter(tea_id = id).update(pass_not=0)
-    if resNum == 1:
+                pd.pass_not = 2
+                pd.save()
+                message_title = u'您的家教需求已通过审核！'
+                message_content = u'您的家教需求已经通过审核，请耐心等待老师应聘'
+                #微信消息推送
+                sendTemplateMessage(
+                    pd,
+                    settings.DOMAIN+'tutor_web/view/parentPage.html',
+                    message_title,
+                    message_content,
+                    u'好学吧家教平台',
+                    now
+                )
+            else:
+                #resNum = ParentOrder.objects.filter(pd_id = id).update(pass_not=0)
+                pd.pass_not = 1
+                pd.save()
+                message_title = u'您的家教需求未通过审核！'
+                message_content = u'您的家教需求未通过审核，请完善您的需求并重新发布。'
+                #微信消息推送
+                sendTemplateMessage(
+                    pd,
+                    settings.DOMAIN+'tutor_web/view/parentQuestion.html?updateParent',
+                    message_title,
+                    message_content,
+                    '好学吧家教平台',
+                    now
+                )
+        elif userType == "teacher":
+            tea = Teacher.objects.get(tea_id = id)
+            #TODO:消息通知？
+            if method:
+                #resNum = Teacher.objects.filter(tea_id = id).update(pass_not=2)
+                tea.pass_not = 2
+                tea.save()
+                message_title = u'您的简历已通过审核！'
+                message_content = u'老师，您好。您的简历已通过审核。请留意平台上发布的家教需求！'
+                sendTemplateMessage(
+                    tea,
+                    settings.DOMAIN+'tutor_web/view/teacherPage',
+                    message_title,
+                    message_content,
+                    '好学吧家教平台',
+                    now
+                )
+            else:
+                #resNum = Teacher.objects.filter(tea_id = id).update(pass_not=0)
+                tea.pass_not = 1
+                tea.save()
+                message_title = u'您的简历未通过审核！'
+                message_content = u'老师，您好。您的简历未通过审核，请尽快完善，并重新投递！'
+                sendTemplateMessage(
+                    tea,
+                    settings.DOMAIN+'tutor_web/view/teacherResume.html?change',
+                    message_title,
+                    message_content,
+                    '好学吧家教平台',
+                    now
+                )
         return JsonResponse()
-    else:
-        return JsonError("not found")
+    except Exception,e:
+        print 'traceback.print_exc():'; traceback.print_exc()
+        return JsonError(e.message)
+
 
 @login_required()
 @api_view(['POST'])
