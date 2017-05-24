@@ -252,7 +252,7 @@ def setPass(request):
                 )
             else:
                 #resNum = ParentOrder.objects.filter(pd_id = id).update(pass_not=0)
-                pd.pass_not = 1
+                pd.pass_not = 0
                 pd.save()
                 message_title = u'您的家教需求未通过审核！'
                 message_content = u'您的家教需求未通过审核，请完善您的需求并重新发布。'
@@ -284,7 +284,7 @@ def setPass(request):
                 )
             else:
                 #resNum = Teacher.objects.filter(tea_id = id).update(pass_not=0)
-                tea.pass_not = 1
+                tea.pass_not = 0
                 tea.save()
                 message_title = u'您的简历未通过审核！'
                 message_content = u'老师，您好。您的简历未通过审核，请尽快完善，并重新投递！'
