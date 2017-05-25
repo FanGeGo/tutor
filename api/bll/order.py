@@ -94,6 +94,21 @@ def applyParent(request):
 
             except Exception,e:
                 return JsonError(e.message)
+            #多位老师应聘同一份家教，微信消息推送给家长，“您发布的家教有多位老师应聘。请尽快挑选最满意的老师联系试课。”
+            orders = OrderApply.objects.filter(apply_type=1,pd=pd,finished__in=[0,2])
+            now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+            if len(orders) > 1:
+                #推送消息
+                message_title = u"您发布的家教有多位老师应聘。"
+                message_content = u"您发布的家教有多位老师应聘。请尽快挑选最满意的老师联系试课。"
+                sendTemplateMessage(
+                    pd,
+                    settings.DOMAIN+'tutor_web/view/myTeacher.html',
+                    message_title,
+                    message_content,
+                    u"好学吧家教平台",
+                    now
+                )
             return JsonResponse()
 
         elif method == 0 :
@@ -268,7 +283,7 @@ def getOrder(request):
             oa.name= oa.tea.name
             oa.result = getTeacherResult(oa)
         #家长端“我的老师”列表只显示通过审核的老师，不会显示正在审核的老师
-        oas = [ i for i in oas if i.result != u"管理员审核中"]
+        #oas = [ i for i in oas if i.result != u"管理员审核中"]
         return Response(OrderApplySerializer(oas,many=True).data)
     else:
         return JsonResponse([])
