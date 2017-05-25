@@ -61,7 +61,8 @@ def sendTemplateMessage(receiver="ome9MwM_cPklUu-VZzA-QWW6FCC4",
                         abstarct="你的报名有最新消息！ＸＸ接受／拒绝了你的报名！",
                         content= '谢谢关注家教平台',
                         name= "黄先生",
-                        date= "2016/12/22"):
+                        date= "2016/12/22",
+                        tel=""):
     #获取用户，判断是否是管理员，如果是管理员则first_name是openId
     user = receiver.wechat
     if user.is_superuser:
@@ -71,6 +72,7 @@ def sendTemplateMessage(receiver="ome9MwM_cPklUu-VZzA-QWW6FCC4",
     else:
         openid = user.username
         remark = "谢谢关注家教平台"
+    # openid = receiver #test
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
     post_data = {
@@ -88,7 +90,7 @@ def sendTemplateMessage(receiver="ome9MwM_cPklUu-VZzA-QWW6FCC4",
                 "color":"#173177"
             },
             "keyword2": {
-                "value":'',
+                "value":tel,
                 "color":"#173177"
             },
             "keyword3":{
