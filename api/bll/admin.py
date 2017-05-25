@@ -436,7 +436,7 @@ def sendPhone(request):
     """
     tea_id = request.data.get('tea_id',None)
     oa_id = request.data.get('oa_id',None)
-    tel = request.data.get('tel',None)
+    tel = str(request.data.get('tel',None))
     teas = Teacher.objects.filter(tea_id=tea_id)
     oas = OrderApply.objects.filter(oa_id=oa_id)
     user = AuthUser.objects.get(username=request.user.username)
@@ -444,15 +444,44 @@ def sendPhone(request):
         tea = teas[0]
         oa = oas[0]
         pd_name  = oa.pd.name
-        message_title = u"向您发送了" + pd_name +u"家长的联系方式！"
-        message_content = pd_name + u"家长的联系方式是" + str(tel)
+        message_title = u"截图审核通过！"
+        #截图审核通过，用户名称：***家长，联系方式***，请尽快联系家长确定试课，谢谢
+        message_content = u"截图审核通过，用户名称：" + pd_name + u"家长，联系方式" + tel + u"，请尽快联系家长确定试课，谢谢"
         now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         message = Message(sender=user, receiver=tea.wechat, message_title=message_title,
                           message_content=message_content,status=0,update_time=now,create_time=now)
         message.save()
-        oa.tel = str(tel)
+
+        oa.tel = tel
         oa.finished = 1
         oa.save()
+        #发送推送给老师
+        sendTemplateMessage(
+            tea,
+            settings.DOMAIN+'tutor_web/view/myMessage.html?teacher',
+            message_title,
+            message_content,
+            "好学吧家教平台",
+            now,
+            tel
+        )
+        #发送推送给家长.已成功通知老师，用户名称：***老师，联系方式：***，请尽快与老师联系确定试课，谢谢
+        message_title = "已成功通知老师!"
+        message_content = "用户名称：" + tea.name +"老师，联系方式：" +  tea.tel +"，请尽快与老师联系确定试课，谢谢"
+
+        message = Message(sender=user, receiver=oa.pd.wechat, message_title=message_title,
+                          message_content=message_content,status=0,update_time=now,create_time=now)
+        message.save()
+
+        sendTemplateMessage(
+            oa.pd,
+            settings.DOMAIN+'tutor_web/view/myMessage.html?parent',
+            message_title,
+            message_content,
+            "好学吧家教平台",
+            now,
+            tea.tel
+        )
         return JsonResponse()
     else:
         return JsonError(u"输入数据有误")
