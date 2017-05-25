@@ -461,13 +461,13 @@ def sendPhone(request):
             settings.DOMAIN+'tutor_web/view/myMessage.html?teacher',
             message_title,
             message_content,
-            "好学吧家教平台",
+            u"好学吧家教平台",
             now,
             tel
         )
         #发送推送给家长.已成功通知老师，用户名称：***老师，联系方式：***，请尽快与老师联系确定试课，谢谢
-        message_title = "已成功通知老师!"
-        message_content = "用户名称：" + tea.name +"老师，联系方式：" +  tea.tel +"，请尽快与老师联系确定试课，谢谢"
+        message_title = u"已成功通知老师!"
+        message_content = u"用户名称：" + tea.name +u"老师，联系方式：" +  tea.tel +u"，请尽快与老师联系确定试课，谢谢"
 
         message = Message(sender=user, receiver=oa.pd.wechat, message_title=message_title,
                           message_content=message_content,status=0,update_time=now,create_time=now)
@@ -478,7 +478,7 @@ def sendPhone(request):
             settings.DOMAIN+'tutor_web/view/myMessage.html?parent',
             message_title,
             message_content,
-            "好学吧家教平台",
+            u"好学吧家教平台",
             now,
             tea.tel
         )
