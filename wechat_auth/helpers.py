@@ -442,14 +442,18 @@ def getTeacherResult(oa):
             if oa.teacher_willing == 1:
                 isInvited = u"您已邀请"
             elif oa.teacher_willing == 2:
-                isInvited = u"管理员审核中"
+                # isInvited = u"管理员审核中"
+                isInvited = u"正在通知老师"
+
         if oa.finished == 1:
             if oa.teacher_willing == 0:
                 isInvited = u"老师已拒绝"
             if oa.teacher_willing == 2:
-                isInvited = u"已成交"
+                # isInvited = u"已成交"
+                isInvited = u"已成功通知老师"
         if oa.finished == 2:
-            isInvited = u"管理员审核中"
+            # isInvited = u"管理员审核中"
+            isInvited = u"正在通知老师"
     elif oa.apply_type == 1:
         #教师主动，finished为0
         #家长意愿为1，老师向其报名
@@ -467,14 +471,17 @@ def getTeacherResult(oa):
             elif oa.parent_willing == 2 and oa.teacher_willing == 1:
                 isInvited = u"您已同意"
             elif oa.parent_willing == 2 and oa.teacher_willing == 2:
-                isInvited = u"管理员审核中"
+                # isInvited = u"管理员审核中"
+                isInvited = u"正在通知老师"
         if oa.finished == 1:
             if oa.parent_willing == 0:
                 isInvited = u"您已拒绝"
             elif oa.parent_willing == 2 and oa.teacher_willing == 2:
-                isInvited = u"已成交"
+                # isInvited = u"已成交"
+                isInvited = u"已成功通知老师"
         if oa.finished == 2:
-            isInvited = u"管理员审核中"
+            # isInvited = u"管理员审核中"
+            isInvited = u"正在通知老师"
     return isInvited
 
 def getParentResult(oa):
@@ -513,6 +520,7 @@ def getParentResult(oa):
                 result = u"已成交"
         if oa.finished == 2:
             result = u"管理员审核中"
+            #TODO:通知老师失败。审核失败
     elif oa.apply_type == 2:
         #家长主动,finished为0
             #1. 老师意愿为1，老师端订单显示为“已邀请”
