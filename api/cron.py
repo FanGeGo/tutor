@@ -3,8 +3,9 @@
 import datetime
 
 from django.db import transaction
-
+from django.conf import settings
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config
+from wechat_auth.helpers import sendTemplateMessage
 
 __author__ = 'yinzishao'
 
@@ -53,16 +54,37 @@ def checkUpload():
                 oa.teacher_willing = 0
                 oa.save()
                 #给老师发送消息，老师过期
-                message_title = u"你的订单已过期，没有在相应的时间内上传截图！"
-                message_content = u"你的订单已过期，没有在相应的时间内上传截图！"
+                message_title = u"截图审核未通过，请留意其他家教信息！"
+                message_content = u"截图审核未通过，请留意其他家教信息！"
                 #应该是管理员发送
                 message = Message(sender=oa.tea.wechat, receiver=oa.tea.wechat, message_title=message_title, message_content=message_content,status=0)
                 message.save()
-                #老家长发送消息，审核不通过
-                message_title = u"订单审核不通过！"
-                message_content = u"订单审核不通过！"
+                #发送推送给老师
+                sendTemplateMessage(
+                    oa.tea,
+                    settings.DOMAIN+'tutor_web/view/teacherPage.html',
+                    message_title,
+                    message_content,
+                    u"好学吧家教平台",
+                    now
+                )
+
+                #家长发送消息，审核不通过
+                message_title = u"通知老师失败，请重新选择其他老师联系试课！"
+                message_content = u"通知老师失败，请重新选择其他老师联系试课！"
                 message = Message(sender=oa.tea.wechat, receiver=oa.pd.wechat, message_title=message_title, message_content=message_content,status=0)
                 message.save()
                 #推送到微信端
+
+                #发送推送给家长
+                sendTemplateMessage(
+                    oa.pd,
+                    settings.DOMAIN+'tutor_web/view/parentPage.html',
+                    message_title,
+                    message_content,
+                    u"好学吧家教平台",
+                    now
+                )
+
         except Exception,e:
             print e.message

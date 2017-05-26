@@ -44,7 +44,7 @@ INSTALLED_APPS = (
     'django_crontab',
 )
 CRONJOBS = [
-    ('*/5 * * * *', 'api.cron.my_scheduled_job')
+    ('*/5 * * * *', 'api.cron.checkUpload')
 ]
 MIDDLEWARE_CLASSES = (
     'corsheaders.middleware.CorsMiddleware',
