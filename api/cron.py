@@ -6,7 +6,7 @@ from django.db import transaction
 from django.conf import settings
 from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Config
 from wechat_auth.helpers import sendTemplateMessage
-
+import time
 __author__ = 'yinzishao'
 
 
@@ -59,6 +59,7 @@ def checkUpload():
                 #应该是管理员发送
                 message = Message(sender=oa.tea.wechat, receiver=oa.tea.wechat, message_title=message_title, message_content=message_content,status=0)
                 message.save()
+                now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
                 #发送推送给老师
                 sendTemplateMessage(
                     oa.tea,

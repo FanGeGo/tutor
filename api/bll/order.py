@@ -74,6 +74,7 @@ def applyParent(request):
                 with transaction.atomic():
                     #新建订单
                     order.save()
+                    #推送给家长
                     message_title = teacher.name + u"向您报名!"
                     message_content = teacher.name + u"向您报名!请到“我的老师”处查看详细信息!"
                     now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
@@ -90,8 +91,23 @@ def applyParent(request):
                         teacher.name,
                         now
                     )
-                    #TODO:推送到微信端
-
+                    #推送给老师
+                    message_title = u"您已经成功报名!"
+                    message_content =  u"您已经成功报名。请到“我的家长”处查看详细信息。如2-3天内未收到试课消息，请留意该平台的其他家教信息。"
+                    now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+                    #新建消息
+                    message = Message(sender=user, receiver=teacher.wechat,
+                                      message_title=message_title, message_content=message_content,
+                                      status=0,update_time=now,create_time=now)
+                    message.save()
+                    sendTemplateMessage(
+                        teacher,
+                        settings.DOMAIN+'tutor_web/view/myList.html',
+                        message_title,
+                        message_content,
+                        u"好学吧家教平台",
+                        now
+                    )
             except Exception,e:
                 return JsonError(e.message)
             #多位老师应聘同一份家教，微信消息推送给家长，“您发布的家教有多位老师应聘。请尽快挑选最满意的老师联系试课。”
