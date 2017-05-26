@@ -250,6 +250,19 @@ def setPass(request):
                     u'好学吧家教平台',
                     now
                 )
+                #家长审核通过，发送给所有老师
+                teachers = Teacher.objects.filter(pass_not = 2)
+                message_title = "有新的家长发布需求！"
+                message_content = "有新的家长发布需求！请留意家教平台！"
+                for tea in teachers:
+                    sendTemplateMessage(
+                        tea,
+                        settings.DOMAIN+'tutor_web/view/teacherPage.html',
+                        message_title,
+                        message_content,
+                        u'好学吧家教平台',
+                        now
+                    )
             else:
                 #resNum = ParentOrder.objects.filter(pd_id = id).update(pass_not=0)
                 pd.pass_not = 0
