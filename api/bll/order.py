@@ -362,6 +362,19 @@ def handleOrder(request):
                                 pd.name,
                                 now
                             )
+                            # 如果是通过的话，需要通知管理员进行与老师的价格讨论
+                            if accept:
+                                message_title = pd.name + u"接受了" + tea.name + u"的报名！" + u"请管理员尽快联系老师定价！"
+                                message_content = ''
+                                sendTemplateMessage(
+                                    'admin',
+                                    '',
+                                    message_title,
+                                    message_content,
+                                    tea.name,
+                                    now,
+                                    tea.tel
+                                )
                     except Exception,e:
                         return JsonError(e.message)
                     return JsonResponse()

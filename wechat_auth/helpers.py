@@ -63,15 +63,21 @@ def sendTemplateMessage(receiver="ome9MwM_cPklUu-VZzA-QWW6FCC4",
                         name= "黄先生",
                         date= "2016/12/22",
                         tel=""):
+    # TODO: receive本来应该直接是openid 才对,不能传用户耦合性太高了!!!!
     #获取用户，判断是否是管理员，如果是管理员则first_name是openId
-    user = receiver.wechat
-    if user.is_superuser:
-        openid = user.first_name
+    if str(receiver) == 'admin':
+        openid = 'ome9MwM_cPklUu-VZzA-QWW6FCC4'  # 管理员写死
         remark = "管理员的消息通知"
         redir_url = admin_url
     else:
-        openid = user.username
-        remark = "谢谢关注家教平台"
+        user = receiver.wechat
+        if user.is_superuser:
+            openid = user.first_name
+            remark = "管理员的消息通知"
+            redir_url = admin_url
+        else:
+            openid = user.username
+            remark = "谢谢关注家教平台"
     # openid = receiver #test
     token = conf.get_access_token()['access_token']
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s" % token
