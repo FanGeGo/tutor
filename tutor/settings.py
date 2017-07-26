@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'rest_framework',
     'api',
+    'wechat_sdk',
     'wechat_auth',
     'django_crontab',
 )
