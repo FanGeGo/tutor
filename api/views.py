@@ -112,3 +112,28 @@ def uploadImgServerId(request):
     print serverId
     return JsonResponse()
 
+
+@login_required()
+@api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+def setMessageWarn(request):
+    """
+    改变消息通知状态
+    :param request:
+    :return:
+    """
+    user = AuthUser.objects.get(username=request.user.username)
+    status = request.data.get('status', 1)
+    teacher = user.teacher_set.all()
+    parent = user.parentorder_set.all()
+    if not len(teacher) and not len(parent):
+        return JsonError("no user")
+    else:
+
+        if len(teacher):
+            obj = teacher[0]
+        else:
+            obj = parent[0]
+        obj.massage_warn = status
+        obj.save()
+        return JsonResponse()

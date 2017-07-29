@@ -51,6 +51,7 @@ urlpatterns = [
     url(r'^loginAdmin', csrf_exempt(views.loginAdmin)),
     url(r'^checkWechat', csrf_exempt(views.checkWechat)),
     url(r'^setWechat', csrf_exempt(views.setWechat)),
+    url(r'^setMessageWarn', csrf_exempt(views.setMessageWarn)),
 ]
 
 

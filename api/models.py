@@ -222,6 +222,7 @@ class ParentOrder(models.Model):
     create_time = models.DateTimeField(blank=True, null=True)
     update_time = models.DateTimeField(blank=True, null=True)
     status = models.IntegerField(blank=True, null=True, default=1)
+    massage_warn = models.IntegerField(blank=True, null=True, default=1)
     bonus = models.TextField(blank=True, null=True)
 
     class Meta:
