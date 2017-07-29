@@ -70,6 +70,8 @@ def sendTemplateMessage(receiver="ome9MwM_cPklUu-VZzA-QWW6FCC4",
         remark = "管理员的消息通知"
         redir_url = admin_url
     else:
+        if not receiver.massage_warn:
+            return False
         user = receiver.wechat
         if user.is_superuser:
             openid = user.first_name
