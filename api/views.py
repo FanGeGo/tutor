@@ -48,7 +48,21 @@ def getWechatInfo(request):
     :param request:
     :return:
     """
-    return Response(request.session.get("info",None))
+    result = request.session.get("info", {})
+    user = AuthUser.objects.get(username=request.user.username)
+    teacher = user.teacher_set.all()
+    parent = user.parentorder_set.all()
+    if not len(teacher) and not len(parent):
+        return JsonError("no user")
+    else:
+
+        if len(teacher):
+            obj = teacher[0]
+        else:
+            obj = parent[0]
+        massage_warn = obj.massage_warn
+        result['message_warn'] = massage_warn
+    return Response(result)
 
 @login_required()
 @api_view(['POST'])
