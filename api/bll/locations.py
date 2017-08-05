@@ -3,17 +3,19 @@
 import time
 from django.utils import timezone
 import traceback
+
 __author__ = 'yinzishao'
 
-from rest_framework.decorators import api_view,authentication_classes,permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from api.serializers import OrderApplySerializer
 from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
-from tutor.http import JsonResponse,JsonError
-from api.models import Teacher,AuthUser,ParentOrder,OrderApply,Message,Locations
+from tutor.http import JsonResponse, JsonError
+from api.models import Teacher, AuthUser, ParentOrder, OrderApply, Message, Locations
 from django.db import transaction
-from wechat_auth.helpers import changeSingleBaseToImg, getTeacherResult, getParentResult,getAddress,distance
+from wechat_auth.helpers import changeSingleBaseToImg, getTeacherResult, getParentResult, getAddress, distance
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -37,20 +39,22 @@ def setLocations(request):
         longitude = float(request.data.get("longitude", -1))
         latitude = float(request.data.get("latitude", -1))
         user = AuthUser.objects.get(username=request.user.username)
-        address = getAddress(latitude,longitude)
+        address = getAddress(latitude, longitude)
         locations = user.locations_set.all()
         if len(locations) > 0:
-            l=locations[0]
-            l.longitude=longitude
-            l.latitude=latitude
-            l.address=address
+            l = locations[0]
+            l.longitude = longitude
+            l.latitude = latitude
+            l.address = address
         else:
-            l = Locations(longitude=longitude,latitude=latitude,wechat=user,address=address)
+            l = Locations(longitude=longitude, latitude=latitude, wechat=user, address=address)
         l.save()
         return JsonResponse()
-    except Exception,e:
-        print 'traceback.print_exc():'; traceback.print_exc()
+    except Exception, e:
+        print 'traceback.print_exc():';
+        traceback.print_exc()
         return JsonError(e.message)
+
 
 @login_required()
 @api_view(['POST'])
@@ -63,8 +67,9 @@ def getUserAddress(request):
     """
     longitude = float(request.data.get("longitude", -1))
     latitude = float(request.data.get("latitude", -1))
-    address = getAddress(longitude,latitude)
-    return JsonResponse({'address':address})
+    address = getAddress(longitude, latitude)
+    return JsonResponse({'address': address})
+
 
 def getUserDistance(user1, user2):
     """
@@ -78,6 +83,6 @@ def getUserDistance(user1, user2):
     if len(l1) and len(l2):
         l1 = l1[0]
         l2 = l2[0]
-        return distance(l1.latitude,l1.longitude,l2.latitude,l2.longitude)
+        return distance(l1.latitude, l1.longitude, l2.latitude, l2.longitude)
     else:
         return 0

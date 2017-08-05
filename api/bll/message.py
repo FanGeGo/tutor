@@ -4,13 +4,14 @@ import time
 
 __author__ = 'yinzishao'
 
-from rest_framework.decorators import api_view,authentication_classes
+from rest_framework.decorators import api_view, authentication_classes
 from api.serializers import MessageSerializer
 from django.contrib.auth.decorators import login_required
 from rest_framework.response import Response
-from tutor.http import JsonResponse,JsonError
-from api.models import AuthUser,Message
+from tutor.http import JsonResponse, JsonError
+from api.models import AuthUser, Message
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -30,8 +31,8 @@ def getMsg(request):
     }
     :return:
     """
-    size = int(request.data.get("size",0))
-    start = int(request.data.get("start",0)) * size
+    size = int(request.data.get("size", 0))
+    start = int(request.data.get("start", 0)) * size
     user = AuthUser.objects.get(username=request.user.username)
     msgs = user.receiver.all().order_by('-update_time')[start:start + size]
     for msg in msgs:
@@ -41,6 +42,7 @@ def getMsg(request):
     for r in result:
         r["status"] = True if r["status"] else False
     return Response(result)
+
 
 @login_required()
 @api_view(['POST'])
@@ -56,6 +58,6 @@ def readMessage(request):
     """
     msg_id = request.data.get("msg_id", None)
     user = AuthUser.objects.get(username=request.user.username)
-    now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-    msg = Message.objects.filter(msg_id=msg_id, receiver = user).update(status=1,update_time=now)
+    now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    msg = Message.objects.filter(msg_id=msg_id, receiver=user).update(status=1, update_time=now)
     return JsonResponse()
