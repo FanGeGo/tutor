@@ -175,7 +175,8 @@ class OrderApply(models.Model):
     pass_not = models.IntegerField()
     expectation = models.TextField(blank=True, null=True)
     finished = models.IntegerField(default=0)
-    tel =  models.CharField(max_length=45, null=True)
+    tel = models.CharField(max_length=45, null=True)
+    price = models.IntegerField()
 
     class Meta:
         managed = False

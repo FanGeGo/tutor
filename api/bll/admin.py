@@ -337,7 +337,7 @@ def getCheckList(request):
     :return:
     """
 
-    selected = request.data.get('selected', None)  # 当为1时：简历投递, 2：家长需求
+    selected = request.data.get('selected', None)  # 当为1时：简历投递, 2：家长需求, 3: 定价
     format = request.data.get('format', None)
     size = int(request.data.get("size", 0))
     start = int(request.data.get("start", 0)) * size
@@ -365,9 +365,58 @@ def getCheckList(request):
                 "pd_id": r["pd_id"]
             }
             res.append(temp)
-
+    elif selected == 3:
+        # 定价审核
+        oas = OrderApply.objects.filter(teacher_willing=2, parent_willing=2, finished=0, screenshot_path=None)[
+              start:start + size]
+        for oa in oas:
+            oa.name = oa.tea.name
+            oa.pd_name = oa.pd.name
+            oa.parent_tel = oa.pd.tel
+            oa.teacher_tel = oa.tea.tel
+        res = OrderApplySerializer(oas, many=True).data
     return JsonResponse(res)
 
+
+@login_required()
+@api_view(['POST'])
+@authentication_classes((CsrfExemptSessionAuthentication, BasicAuthentication))
+@permission_classes((IsAdminUser,))
+def makePriceAndApprove(request):
+    """
+    管理员对订单定价，获取审核拒绝订单
+    :param request:
+    {
+     "oa_id": 1         订单ID
+     "price": 20,        定价的价格
+     "willing": 0/1      0/1  0：拒绝 1：通过（默认）
+     }
+    :return:
+    """
+    oa_id = int(request.data.get('oa_id', 0))
+    price = int(request.data.get('price', 0))
+    willing = request.data.get('willing', 1)
+    try:
+        oa = OrderApply.objects.get(oa_id=oa_id)
+        if willing:
+            # 管理员审核通过,两种情况。
+            # 1.如果price为空，并且订单的价格非空，则是审核通过上传截图
+            # 2.如果price非空，则是修改定价金额
+            if price:
+                oa.price = price
+                oa.finished = 2
+            else:
+                oa.pass_not = 2
+                oa.finished = 1
+        else:
+            oa.pass_not = 0
+            oa.finished = 1
+        oa.save()
+        return JsonResponse()
+    except Exception, e:
+        print 'traceback.print_exc():';
+        traceback.print_exc()
+        return JsonError(e.message)
 
 @login_required()
 @api_view(['POST'])

@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+# 订单表：finish有3种情况：
+# 0：待处理状态。家长和老师处理中
+# 1：完成状态。家长、老师、管理员都同意，或者任意一方拒绝
+# 2：管理员审核状态。也就是定价、或者审核截图
+
 import time
 from django.utils import timezone
 
@@ -59,17 +64,17 @@ def applyParent(request):
             if len(orders):
                 return JsonError(u"该家长已经邀请了您！")
 
-            # 家长之前拒绝了该老师，老师再次报名家长
-            orders = OrderApply.objects.filter(apply_type=1, pd=pd, tea=teacher)
+            # 家长之前拒绝了该老师，老师再次报名家长(或者管理员拒绝)
+            orders = OrderApply.objects.filter(apply_type=1, pd=pd, tea=teacher, finished=1)
             if len(orders):
                 order = orders[0]
                 order.finished = 0
                 order.parent_willing = 1
-                order.teacher_willing = 1
+                order.teacher_willing = 2
                 order.update_time = timezone.now()
                 order.expectation = expectation
             else:
-                order = OrderApply(apply_type=1, pd=pd, tea=teacher, parent_willing=1, teacher_willing=1,
+                order = OrderApply(apply_type=1, pd=pd, tea=teacher, parent_willing=1, teacher_willing=2,
                                    pass_not=1, update_time=timezone.now(), expectation=expectation, finished=0)
             # 事务
             try:
@@ -199,7 +204,7 @@ def inviteTeacher(request):
             orders = OrderApply.objects.filter(apply_type=1, pd=parentorder, tea=teacher, finished__in=[0, 2])
             if len(orders):
                 return JsonError(u"该老师已经向您报名了！")
-            # 老师之前拒绝了该家长，家长再次报名老师
+            # 老师之前拒绝了该家长，家长再次报名老师，（获取管理员拒绝）
             orders = OrderApply.objects.filter(apply_type=2, pd=parentorder, tea=teacher, finished=1)
             if len(orders):
                 order = orders[0]
@@ -392,7 +397,7 @@ def handleOrder(request):
             # 老师处理家长
             # finished为0
             # 第一种情况：老师处理家长的邀请
-            # 第二种情况：老师报名家长后，家长同意后，老师再次处理同意
+            # 第二种情况：老师报名家长后，家长同意后，老师再次处理同意(去掉)，应该是家长同意后，管理员定价，老师再次上传截图
             # finished为1
             # 老师拒绝了家长，再次接受邀请，tea=tea,pd=pd,finished=1,type=2
             teas = user.teacher_set.all()
