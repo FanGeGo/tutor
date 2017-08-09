@@ -396,18 +396,79 @@ def makePriceAndApprove(request):
     oa_id = int(request.data.get('oa_id', 0))
     price = int(request.data.get('price', 0))
     willing = request.data.get('willing', 1)
+    user = AuthUser.objects.get(username=request.user.username)
     try:
         oa = OrderApply.objects.get(oa_id=oa_id)
+        tea = oa.tea
+        pd_name = oa.pd.name
+        tel = oa.pd.tel
+        now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+
         if willing:
-            # 管理员审核通过,两种情况。
+            # 管理员审核通过,两种情况。 TODO: 消息推送
             # 1.如果price为空，并且订单的价格非空，则是审核通过上传截图
             # 2.如果price非空，则是修改定价金额
             if price:
                 oa.price = price
                 oa.finished = 2
+                message_title = u"管理员已经对您的订单进行定价！"
+                message_content = u"管理员已经对您的订单进行定价！" \
+                                  u"请在半个小时之内转账%(price)s到%(phone)s支付宝账号，超时系统默认取消订单！" \
+                                  % {"price": price, "phone": '18819423815'}
+                message = Message(sender=user, receiver=tea.wechat, message_title=message_title,
+                                  message_content=message_content, status=0, update_time=now, create_time=now)
+                message.save()
+                sendTemplateMessage(
+                    tea,
+                    settings.DOMAIN + 'tutor_web/view/myMessage.html?teacher',
+                    message_title,
+                    message_content,
+                    u"好学吧家教平台",
+                    now,
+                    '',
+                    True
+                )
             else:
+                # 非空，审核截图发送给推送
                 oa.pass_not = 2
                 oa.finished = 1
+                # 消息推送
+                message_title = u"截图审核通过！"
+                # 截图审核通过，用户名称：***家长，联系方式***，请尽快联系家长确定试课，谢谢
+                message_content = u"截图审核通过，用户名称：" + pd_name + u"家长，联系方式" + tel + u"，请尽快联系家长确定试课，谢谢"
+                message = Message(sender=user, receiver=tea.wechat, message_title=message_title,
+                                  message_content=message_content, status=0, update_time=now, create_time=now)
+                message.save()
+                oa.tel = tel
+                # 发送推送给老师
+                sendTemplateMessage(
+                    tea,
+                    settings.DOMAIN + 'tutor_web/view/myMessage.html?teacher',
+                    message_title,
+                    message_content,
+                    u"好学吧家教平台",
+                    now,
+                    tel,
+                    True
+                )
+                # 发送推送给家长.已成功通知老师，用户名称：***老师，联系方式：***，请尽快与老师联系确定试课，谢谢
+                message_title = u"已成功通知老师!"
+                message_content = u"用户名称：" + tea.name + u"老师，联系方式：" + tea.tel + u"，请尽快与老师联系确定试课，谢谢"
+
+                message = Message(sender=user, receiver=oa.pd.wechat, message_title=message_title,
+                                  message_content=message_content, status=0, update_time=now, create_time=now)
+                message.save()
+
+                sendTemplateMessage(
+                    oa.pd,
+                    settings.DOMAIN + 'tutor_web/view/myMessage.html?parent',
+                    message_title,
+                    message_content,
+                    u"好学吧家教平台",
+                    now,
+                    tea.tel,
+                    True
+                )
         else:
             oa.pass_not = 0
             oa.finished = 1
