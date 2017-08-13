@@ -481,6 +481,19 @@ def uploadScreenshot(request):
             order_apply.finished = 2
             order_apply.update_time = timezone.now()
             order_apply.save()
+            # 发送消息给管理员完成截图审核
+            now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            message_title = tea.name + u"上传了订单的截图！请管理员尽快审核！"
+            message_content = ''
+            sendTemplateMessage(
+                'admin',
+                '',
+                message_title,
+                message_content,
+                tea.name,
+                now,
+                tea.tel
+            )
             return JsonResponse()
         else:
             return JsonError(u"找不到该订单")
