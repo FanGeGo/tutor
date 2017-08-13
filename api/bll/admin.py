@@ -337,7 +337,7 @@ def getCheckList(request):
     :return:
     """
 
-    selected = request.data.get('selected', None)  # 当为1时：简历投递, 2：家长需求, 3: 定价
+    selected = request.data.get('selected', None)  # 当为1时：简历投递, 2：家长需求, 3: 定价, 4: 超时未上传截图的
     format = request.data.get('format', None)
     size = int(request.data.get("size", 0))
     start = int(request.data.get("start", 0)) * size
@@ -366,8 +366,18 @@ def getCheckList(request):
             }
             res.append(temp)
     elif selected == 3:
-        # 定价审核, 返回未定价，或者已经定价，但是没有上传截图的订单，以便管理员修改定价。
-        oas = OrderApply.objects.filter(teacher_willing=2, parent_willing=2, pass_not=1, screenshot_path=None)[
+        # 定价审核, 返回未定价，或者已经定价。以便管理员修改定价。
+        oas = OrderApply.objects.filter(teacher_willing=2, parent_willing=2, pass_not=1, finished__in=[0, 2])[
+              start:start + size]
+        for oa in oas:
+            oa.name = oa.tea.name
+            oa.pd_name = oa.pd.name
+            oa.parent_tel = oa.pd.tel
+            oa.teacher_tel = oa.tea.tel
+        res = OrderApplySerializer(oas, many=True).data
+    elif selected == 4:
+        # 返回超时上传截图的订单
+        oas = OrderApply.objects.filter(teacher_willing=0, parent_willing=2, apply_type=1, finished=1)[
               start:start + size]
         for oa in oas:
             oa.name = oa.tea.name
@@ -409,6 +419,8 @@ def makePriceAndApprove(request):
             # 1.如果price为空，并且订单的价格非空，则是审核通过上传截图
             # 2.如果price非空，则是修改定价金额
             if price:
+                oa.parent_willing = 2
+                oa.teacher_willing = 2
                 oa.price = price
                 oa.finished = 2
                 message_title = u"管理员已经对您的订单进行定价！"
