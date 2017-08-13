@@ -611,6 +611,7 @@ def sendPhone(request):
                 message.save()
 
                 oa.tel = tel
+                oa.pass_not = 2
                 oa.finished = 1
                 oa.save()
                 # 发送推送给老师
