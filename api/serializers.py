@@ -42,7 +42,7 @@ class FeedbackSerializer(serializers.ModelSerializer):
 class OrderApplySerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderApply
-        fields = ['oa_id','pd','tea','name','content','result','finish','type','screenshot_path','pd_name','expectation','parent_tel','teacher_tel']
+        fields = '__all__'
     name = serializers.CharField(read_only=True)
     pd_name = serializers.CharField(read_only=True)
     content = serializers.CharField(read_only=True)

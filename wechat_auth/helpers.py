@@ -541,30 +541,36 @@ def getParentResult(oa):
         # 教师主动,finished为0
         # 1. 家长意愿为1，老师端订单显示为“已报名”
         # 2. 家长意愿为2和老师意愿为1，家长同意
-        # 3. 家长意愿为2和老师意愿为2，老师正在上传截图
+        # 3. 家长意愿为2和老师意愿为2，等待管理员定价
         # finished为1
         # 1. 家长意愿为0，老师意愿为1，家长拒绝
-        # 2. 家长意愿为2，老师意愿为2，老师上传截图，完成订单
-        # 3. 家长意愿为2，老师意愿为0，代表未按时上传截图
+        # 2. 家长意愿为2，老师意愿为0，代表未按时上传截图
+        # 3. 家长意愿为2，老师意愿为2，管理员意愿为2，完成订单
+        # 4. 家长意愿为2，老师意愿为2，管理员意愿为0，管理员拒绝
         # finished为2
-        # 1. 老师意愿为2,管理员审核中
-        # 2. 老师意愿为0,管理员不通过（暂无）
+        # 1. 家长意愿为2，老师意愿为2，价格非空，管理员定价，但是老师未上传截图
+        # 2. 家长意愿为2，老师意愿为2，截图非空，管理员审核老师的上传截图
         if oa.finished == 0:
             if oa.parent_willing == 1:
                 result = u"您已报名"
             elif oa.parent_willing == 2 and oa.teacher_willing == 1:
                 result = u"对方已同意"
             elif oa.parent_willing == 2 and oa.teacher_willing == 2:
-                result = u"请上传截图"
+                result = u"管理员定价中"
         if oa.finished == 1:
             if oa.parent_willing == 0:
                 result = u"家长已拒绝"
             elif oa.parent_willing == 2 and oa.teacher_willing == 0:
                 result = u"您未按时上传截图"
-            elif oa.parent_willing == 2 and oa.teacher_willing == 2:
+            elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.pass_not == 1:
+                result = u"管理员审核不通过"
+            elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.pass_not == 2:
                 result = u"已成交"
         if oa.finished == 2:
-            result = u"管理员审核中"
+            if oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.price is not None:
+                result = u"请上传截图"
+            elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.screenshot_path is not None:
+                result = u"管理员审核中"
             # TODO:通知老师失败。审核失败
     elif oa.apply_type == 2:
         # 家长主动,finished为0

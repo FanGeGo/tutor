@@ -377,7 +377,7 @@ def getCheckList(request):
         res = OrderApplySerializer(oas, many=True).data
     elif selected == 4:
         # 返回超时上传截图的订单
-        oas = OrderApply.objects.filter(teacher_willing=0, parent_willing=2, apply_type=1, finished=1)[
+        oas = OrderApply.objects.filter(teacher_willing=0, parent_willing=2, price__isnull=False, finished=1)[
               start:start + size]
         for oa in oas:
             oa.name = oa.tea.name
