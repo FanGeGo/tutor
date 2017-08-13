@@ -553,8 +553,8 @@ def getParentResult(oa):
         if oa.finished == 0:
             if oa.parent_willing == 1:
                 result = u"您已报名"
-            elif oa.parent_willing == 2 and oa.teacher_willing == 1:
-                result = u"对方已同意"
+            # elif oa.parent_willing == 2 and oa.teacher_willing == 1:
+            #     result = u"对方已同意"
             elif oa.parent_willing == 2 and oa.teacher_willing == 2:
                 result = u"管理员定价中"
         if oa.finished == 1:
@@ -585,15 +585,22 @@ def getParentResult(oa):
         if oa.finished == 0:
             if oa.teacher_willing == 1:
                 result = u"对方已邀请"
-            elif oa.teacher_willing == 2:
-                result = u"请上传截图"
+            # elif oa.parent_willing == 2 and oa.teacher_willing == 1:
+            #     result = u"对方已同意"
+            elif oa.parent_willing == 2 and oa.teacher_willing == 2:
+                result = u"管理员定价中"
         if oa.finished == 1:
             if oa.teacher_willing == 0:
                 result = u"您已拒绝"
-            if oa.teacher_willing == 2:
+            elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.pass_not == 2:
                 result = u"已成交"
+            elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.pass_not == 1:
+                result = u"管理员审核不通过"
         if oa.finished == 2:
-            result = u"管理员审核中"
+            if oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.price is not None:
+                result = u"请上传截图"
+            elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.screenshot_path is not None:
+                result = u"管理员审核中"
 
     return result
 
