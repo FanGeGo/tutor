@@ -567,10 +567,12 @@ def getParentResult(oa):
             elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.pass_not == 2:
                 result = u"已成交"
         if oa.finished == 2:
-            if oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.price is not None:
-                result = u"请上传截图"
-            elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.screenshot_path is not None:
+            if oa.screenshot_path:
                 result = u"管理员审核中"
+            elif oa.price:
+                result = u"请上传截图"
+            else:
+                result = u"管理员定价中"
             # TODO:通知老师失败。审核失败
     elif oa.apply_type == 2:
         # 家长主动,finished为0
@@ -597,10 +599,13 @@ def getParentResult(oa):
             elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.pass_not == 1:
                 result = u"管理员审核不通过"
         if oa.finished == 2:
-            if oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.price is not None:
-                result = u"请上传截图"
-            elif oa.parent_willing == 2 and oa.teacher_willing == 2 and oa.screenshot_path is not None:
+            if oa.screenshot_path:
                 result = u"管理员审核中"
+            elif oa.price:
+                result = u"请上传截图"
+            else:
+                result = u"管理员定价中"
+
 
     return result
 
