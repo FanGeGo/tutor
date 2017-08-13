@@ -177,6 +177,8 @@ def authorization(request):
 @csrf_exempt
 def login_from_pwd(request, id=2):
     openid = 'odE4WwK3g05pesjOYGbwcbmOWTnc' + str(id)
+    if str(id) == '999':
+        openid = 'ome9MwM_cPklUu-VZzA-QWW6FCC4'
     try:
         user = User.objects.get(username=openid)
     except User.DoesNotExist,e:
@@ -187,7 +189,7 @@ def login_from_pwd(request, id=2):
         login(request,user)
         request.session['info'] = {
             'province': 'Guangdong',
-            'openid': 'odE4WwK3g05pesjOYGbwcbmOWTnc',
+            'openid': 'ome9MwM_cPklUu-VZzA-QWW6FCC4',
             'headimgurl': 'http://wx.qlogo.cn/mmopen/fR41VbicrntibxhNY3WfaKgHBTbe1d6Gz0tPjhHpicwJerJiaAictfHiaLiaqCcVIs5EKOzsD4yaiadyUIUHK2Lu07K9EqArtialVJd4b/0',
             'language': 'zh_CN',
             'city': 'Yunfu',

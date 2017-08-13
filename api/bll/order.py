@@ -473,7 +473,7 @@ def uploadScreenshot(request):
     oa_id = int(request.data.get('oa_id', -1))
     if len(teas):
         tea = teas[0]
-        order_applys = OrderApply.objects.filter(oa_id=oa_id, tea=tea)
+        order_applys = OrderApply.objects.filter(oa_id=oa_id, tea=tea, price__isnull=False)
         if len(order_applys):
             name = changeSingleBaseToImg(pic)
             order_apply = order_applys[0]

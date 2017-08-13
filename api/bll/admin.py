@@ -366,8 +366,8 @@ def getCheckList(request):
             }
             res.append(temp)
     elif selected == 3:
-        # 定价审核
-        oas = OrderApply.objects.filter(teacher_willing=2, parent_willing=2, finished=0, screenshot_path=None)[
+        # 定价审核, 返回未定价，或者已经定价，但是没有上传截图的订单，以便管理员修改定价。
+        oas = OrderApply.objects.filter(teacher_willing=2, parent_willing=2, pass_not=1, screenshot_path=None)[
               start:start + size]
         for oa in oas:
             oa.name = oa.tea.name
@@ -549,17 +549,22 @@ def getDoneList(request):
     """
     size = int(request.data.get("size", 0))
     start = int(request.data.get("start", 0)) * size
-    oas = OrderApply.objects.filter(teacher_willing=2, parent_willing=2, finished__gte=1).order_by('-update_time')[
-          start:start + size]
+    oas = OrderApply.objects.filter(teacher_willing=2, parent_willing=2, finished__gte=1,
+                                    screenshot_path__isnull=False).order_by('-update_time')[start:start + size]
     for oa in oas:
         oa.name = oa.tea.name
         oa.pd_name = oa.pd.name
         oa.parent_tel = oa.pd.tel
         oa.teacher_tel = oa.tea.tel
+        oa.result = u''
         if oa.finished == 2:
             oa.result = u"未处理"
         elif oa.finished == 1:
-            oa.result = u"已成交"
+            if oa.pass_not == 2:
+                oa.result = u"已成交"
+            elif oa.pass_not == 0:
+                oa.result = u"已拒绝"
+
     return Response(OrderApplySerializer(oas, many=True).data)
 
 
